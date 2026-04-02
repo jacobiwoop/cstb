@@ -184,24 +184,28 @@ const Navbar = () => {
             <div className="px-4 pt-2 pb-6 space-y-1 flex flex-col">
               <Link
                 to="/"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-4 text-base font-bold text-gray-900 border-b border-gray-50 uppercase tracking-wide"
               >
                 ACCUEIL
               </Link>
               <Link
                 to="/qui-sommes-nous"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-4 text-base font-bold text-gray-900 border-b border-gray-50 uppercase tracking-wide"
               >
                 QUI SOMMES-NOUS
               </Link>
               <Link
                 to="/actualites"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-4 text-base font-bold text-gray-900 border-b border-gray-50 uppercase tracking-wide"
               >
                 ACTUALITÉS
               </Link>
               <Link
                 to="/vote"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="mt-4 bg-red-600 text-white px-5 py-3 rounded-sm font-bold hover:bg-red-700 transition-colors flex items-center justify-center gap-2 shadow-sm uppercase tracking-wide"
               >
                 <Heart size={16} /> FAIRE UN DON
@@ -258,7 +262,7 @@ const HeroNew = () => (
           initial={{ opacity: 0, y: "100vh" }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white text-[18vw] md:text-[12vw] lg:text-[10vw]"
+          className="text-white text-[15vw] md:text-[12vw] lg:text-[10vw]"
         >
           LE
         </motion.span>
@@ -266,7 +270,7 @@ const HeroNew = () => (
           initial={{ opacity: 0, y: "100vh" }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[#FFC107] text-[26vw] md:text-[18vw] lg:text-[15vw] leading-[0.8]"
+          className="text-[#FFC107] text-[22vw] md:text-[18vw] lg:text-[15vw] leading-[0.8]"
         >
           PEUPLE
         </motion.span>
@@ -274,7 +278,7 @@ const HeroNew = () => (
           initial={{ opacity: 0, y: "100vh" }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white text-[18vw] md:text-[12vw] lg:text-[10vw]"
+          className="text-white text-[15vw] md:text-[12vw] lg:text-[10vw]"
         >
           D'ABORD
         </motion.span>
