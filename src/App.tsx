@@ -233,27 +233,7 @@ const HeroNew = () => (
       <div className="absolute inset-0 bg-gradient-to-b from-[#111111]/90 via-[#111111]/60 to-[#111111]"></div>
     </div>
 
-    {/* Top Bar */}
-    <div
-      className="w-full border-b border-zinc-800/80 py-3 px-4 sm:px-8 flex items-center overflow-x-auto relative z-10"
-      style={{ scrollbarWidth: "none" }}
-    >
-      <div className="flex gap-8 items-center whitespace-nowrap text-xs font-mono text-zinc-500 tracking-wider">
-        <span className="flex items-center gap-2">
-          <Mail size={14} className="text-zinc-600" /> cstbsn@yahoo.fr
-        </span>
-        <span className="flex items-center gap-2">
-          <Phone size={14} className="text-zinc-600" /> +229 95 22 48 34
-        </span>
-        <span className="flex items-center gap-2">
-          <Globe size={14} className="text-blue-500" /> Affiliée à la CSI
-        </span>
-        <span className="flex items-center gap-2">
-          <Zap size={14} className="text-yellow-500" /> Anti-impérialiste depuis
-          1982
-        </span>
-      </div>
-    </div>
+
 
     {/* Main Content */}
     <div className="flex-1 flex flex-col justify-center px-4 sm:px-8 lg:px-16 relative z-10">
