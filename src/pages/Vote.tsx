@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Heart, CheckCircle2, Play, ArrowRight, Activity, Users, Shield } from 'lucide-react';
+import imgLarge from '../assets/bf4a8e607ef1b4140078e5bf7db147b9.jpg';
+import imgSmall from '../assets/5484d57b643fab6572b455302d8a411f.jpg';
 
 export const Vote = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
@@ -137,10 +139,9 @@ export const Vote = () => {
             >
               <div className="rounded-3xl overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1518398046578-8cca57782e17?auto=format&fit=crop&q=80" 
+                  src={imgLarge} 
                   alt="Solidarity" 
                   className="w-full h-[400px] md:h-[500px] object-cover grayscale"
-                  referrerPolicy="no-referrer"
                 />
               </div>
               {/* Yellow Heart Overlay */}
@@ -150,10 +151,9 @@ export const Vote = () => {
               {/* Overlapping Circular Image */}
               <div className="absolute bottom-0 right-0 w-48 h-48 md:w-64 md:h-64 rounded-full border-8 border-white overflow-hidden shadow-xl z-10">
                 <img 
-                  src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80" 
+                  src={imgSmall} 
                   alt="Children" 
                   className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
                 />
               </div>
             </motion.div>
