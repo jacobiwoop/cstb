@@ -30,6 +30,9 @@ import { AboutPage } from "./pages/AboutPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import heroImg from "./assets/hero.jpg";
 import mainLogo from "./assets/logo/Group-48095879.svg";
+import articleImg1 from "./assets/article/image-10-1.png";
+import articleImg2 from "./assets/article/image-11-1.png";
+import articleImg3 from "./assets/article/medium-shot-man-carrying-tool-2-1-768x295.png";
 
 import imgCDTN from "./assets/partenaire/CDTN-qe3z0h0gzdfe8lccbg98x6x31oshyuvhrr6ef7kaxo.png";
 import imgCGTB from "./assets/partenaire/CGTB-qe3z0h0gzdfe8lccbg98x6x31oshyuvhrr6ef7kaxo.png";
@@ -788,8 +791,7 @@ const News = () => {
         "Appel à la mobilisation générale pour les droits des travailleurs",
       excerpt:
         "La CSTB appelle tous les travailleurs à se mobiliser pour défendre les acquis sociaux face aux nouvelles mesures gouvernementales.",
-      image:
-        "https://storage.googleapis.com/aistudio-ext-files/0/file_62b17d5985864117.jpeg",
+      image: articleImg1,
     },
     {
       date: "15 Mars 2026",
@@ -797,8 +799,7 @@ const News = () => {
       title: "Succès de la plateforme éducative soutenue par l'UNESCO",
       excerpt:
         "Plus de 5000 enseignants ont déjà rejoint notre nouvelle plateforme de formation continue, renforçant ainsi la qualité de l'enseignement.",
-      image:
-        "https://storage.googleapis.com/aistudio-ext-files/0/file_d620573e16444da9.jpeg",
+      image: articleImg2,
     },
     {
       date: "28 Février 2026",
@@ -806,8 +807,7 @@ const News = () => {
       title: "Avancées significatives sur la convention collective",
       excerpt:
         "Après plusieurs semaines de négociations intenses, des accords de principe ont été trouvés concernant la revalorisation salariale.",
-      image:
-        "https://storage.googleapis.com/aistudio-ext-files/0/file_1a734661852a4e40.jpeg",
+      image: articleImg3,
     },
   ];
 
