@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronRight, ChevronLeft, Calendar, Tag, ArrowRight, Search, Megaphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import newsHeroImg from '../assets/2f2be7a217340647bfcfaebd36fdfaed.jpg';
 
 export const NewsPage = () => {
   useEffect(() => {
@@ -98,10 +99,9 @@ export const NewsPage = () => {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img 
-            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80" 
-            alt="People working on laptop" 
+            src={newsHeroImg} 
+            alt="News Hero Background" 
             className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
           />
         </div>
         
