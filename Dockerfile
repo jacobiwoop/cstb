@@ -1,12 +1,12 @@
-# Étape 1 : Image de base légère avec Node.js
-FROM node:22-alpine
+# Étape 1 : Image de base légère avec Node.js (slim évite les problèmes 'musl' avec Vite)
+FROM node:22-slim
 
 # Étape 2 : Définition du répertoire de travail dans le conteneur
 WORKDIR /app
 
 # Étape 3 : Copie des fichiers de dépendances et installation
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Étape 4 : Copie du reste du code source
 COPY . .
