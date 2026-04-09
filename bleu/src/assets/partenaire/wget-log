@@ -1,0 +1,15 @@
+--2026-04-02 23:46:06--  https://web.facebook.com/confederationcsa/?_rdc=1
+Résolution de web.facebook.com (web.facebook.com)… 57.144.38.141, 2a03:2880:f310:8d:face:b00c:0:2
+Connexion à web.facebook.com (web.facebook.com)|57.144.38.141|:443… connecté.
+requête HTTP transmise, en attente de la réponse… 302 Found
+Emplacement : https://web.facebook.com/unsupportedbrowser [suivant]
+--2026-04-02 23:46:06--  https://web.facebook.com/unsupportedbrowser
+Réutilisation de la connexion existante à web.facebook.com:443.
+requête HTTP transmise, en attente de la réponse… 200 OK
+Taille : non indiqué [text/html]
+Sauvegarde en : « index.html?_rdc=1 »
+
+index.html?_rdc=1      [<=>           ]       0  --.-KB/s               index.html?_rdc=1      [ <=>          ]  45,41K  --.-KB/s    ds 0,07s   
+
+2026-04-02 23:46:06 (646 KB/s) - « index.html?_rdc=1 » sauvegardé [46504]
+
