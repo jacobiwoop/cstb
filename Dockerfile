@@ -36,6 +36,7 @@ RUN npm init -y && npm install express
 EXPOSE 8080
 ENV PORT=8080
 ENV NODE_ENV=production
+ENV DATABASE_URL="file:./prisma/dev.db"
 
 # 8. Lancement du script coordinateur
 CMD ["node", "entrypoint.js"]
