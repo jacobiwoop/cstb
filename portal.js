@@ -36,41 +36,87 @@ startTunnel("http://localhost:8080", "Portail"); // Accès distant au hub lui-m�
 app.get("/", (req, res) => {
   res.send(`
     <!DOCTYPE html>
-    <html>
+    <html lang="fr">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Portail CSTB Bénin</title>
-        <meta charset="utf-8">
+        <script src="https://cdn.tailwindcss.com"></script>
         <style>
-            body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f2f5; padding-top: 50px; }
-            .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 400px; text-align: center; margin-bottom: 20px; }
-            .btn { display: inline-block; padding: 12px 24px; border-radius: 8px; color: white; text-decoration: none; font-weight: bold; margin-top: 15px; }
-            .btn-bleu { background: #007cba; }
-            .btn-rouge { background: #e63946; }
-            .status { font-size: 0.8em; color: #666; margin-top: 10px; }
+            .iframe-container { height: 65vh; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; background: white; }
+            iframe { width: 100%; height: 100%; border: none; }
+            .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+            .bg-ready { background-color: #10b981; }
+            .bg-waiting { background-color: #f59e0b; }
         </style>
         <script>
-            if (window.location.search !== '?ready') {
-                setTimeout(() => window.location.reload(), 5000);
+            // Auto-refresh toutes le 10s pour capter les URLs au démarrage
+            if (window.location.href.indexOf('ready') === -1) {
+                setTimeout(() => window.location.reload(), 10000);
             }
         </script>
     </head>
-    <body>
-        <h1>CSTB Bénin - Serveur Privé</h1>
-        <div class="card" style="border-top: 5px solid #007cba">
-            <h2>Version BLEU</h2>
-            <p>Moderne & Admin</p>
-            <a href="${urlBleu}" class="btn btn-bleu" target="_blank">Ouvrir le site</a>
-            <div class="status">${urlBleu}</div>
-        </div>
-        <div class="card" style="border-top: 5px solid #e63946">
-            <h2>Version ROUGE</h2>
-            <p>Classique</p>
-            <a href="${urlRouge}" class="btn btn-rouge" target="_blank">Ouvrir le site</a>
-            <div class="status">${urlRouge}</div>
+    <body class="bg-[#f8fafc] min-h-screen font-sans text-[#1e293b]">
+        <div class="max-w-[1600px] mx-auto px-6 py-8">
+            <header class="flex items-center justify-between mb-8 pb-4 border-b border-[#e2e8f0]">
+                <div>
+                    <h1 class="text-3xl font-black text-[#0f172a]">CSTB Bénin - Portail Hub</h1>
+                    <p class="text-sm text-[#64748b]">Aperçu en direct et gestion des versions</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs font-bold text-[#64748b] uppercase tracking-widest mb-1">Tunnel Status</div>
+                    <div class="flex items-center gap-4 text-xs font-medium">
+                        <span><span class="dot ${urlBleu.startsWith("http") ? "bg-ready" : "bg-waiting"}"></span> Bleu</span>
+                        <span><span class="dot ${urlRouge.startsWith("http") ? "bg-ready" : "bg-waiting"}"></span> Rouge</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <!-- Version BLEU (Moderne) -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between px-2">
+                        <div>
+                            <h2 class="text-xl font-bold text-blue-700">Version moderne (Bleu)</h2>
+                            <p class="text-xs text-gray-500">${urlBleu}</p>
+                        </div>
+                        <a href="${urlBleu}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all shadow-md">Plein écran ↗</a>
+                    </div>
+                    <div class="iframe-container">
+                        ${
+                          urlBleu.startsWith("http")
+                            ? `<iframe src="${urlBleu}" title="Aperçu Bleu"></iframe>`
+                            : `<div class="flex items-center justify-center h-full text-gray-400 italic">Génération du tunnel en cours...</div>`
+                        }
+                    </div>
+                </div>
+
+                <!-- Version ROUGE (Classique) -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between px-2">
+                        <div>
+                            <h2 class="text-xl font-bold text-red-700">Version classique (Rouge)</h2>
+                            <p class="text-xs text-gray-500">${urlRouge}</p>
+                        </div>
+                        <a href="${urlRouge}" target="_blank" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs transition-all shadow-md">Plein écran ↗</a>
+                    </div>
+                    <div class="iframe-container">
+                        ${
+                          urlRouge.startsWith("http")
+                            ? `<iframe src="${urlRouge}" title="Aperçu Rouge"></iframe>`
+                            : `<div class="flex items-center justify-center h-full text-gray-400 italic">Génération du tunnel en cours...</div>`
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-12 text-center">
+                <p class="text-[#94a3b8] text-xs font-bold uppercase tracking-widest italic">CSTB Bénin - Déploiement Privé Propulsé par Antigravity</p>
+            </footer>
         </div>
     </body>
     </html>
-    `);
+  `);
 });
 
 app.listen(port, () => console.log(`Portail prêt sur le port ${port}`));
