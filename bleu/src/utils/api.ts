@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const isDev = import.meta.env.DEV;
+const API_URL = isDev ? 'http://localhost:3001/api' : '/api';
 
 export const articleApi = {
   // Récupérer tous les articles
