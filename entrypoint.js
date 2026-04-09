@@ -114,7 +114,7 @@ app.get("/", (req, res) => {
         </style>
         <script>
             // Auto-refresh de la page tant qu'on n'a pas reçu les deux adresses Cloudflare
-            if ('\${urlBleu}'.includes('attente') || '\${urlRouge}'.includes('attente')) {
+            if ('${urlBleu}'.includes('attente') || '${urlRouge}'.includes('attente')) {
                 setTimeout(() => window.location.reload(), 3000);
             }
         </script>
@@ -128,20 +128,20 @@ app.get("/", (req, res) => {
         <div class="grid-container">
             <div class="card" style="border-top: 4px solid #007cba;">
                 <div class="card-header">
-                    \${urlBleu.includes("attente") ? '<div class="loading-badge"><div class="spinner"></div> Génération du tunnel Bleu...</div>' : ""}
-                    <a href="\${urlBleu.includes("http") ? urlBleu : "#"}" target="_blank" class="btn btn-bleu" style="\${urlBleu.includes("attente") ? "opacity:0.5; pointer-events:none;" : ""}">Plein écran BLEU</a>
-                    <div class="url">\${urlBleu}</div>
+                    ${urlBleu.includes("attente") ? '<div class="loading-badge"><div class="spinner"></div> Génération du tunnel Bleu...</div>' : ""}
+                    <a href="${urlBleu.includes("http") ? urlBleu : "#"}" target="_blank" class="btn btn-bleu" style="${urlBleu.includes("attente") ? "opacity:0.5; pointer-events:none;" : ""}">Plein écran BLEU</a>
+                    <div class="url">${urlBleu}</div>
                 </div>
-                \${urlBleu.includes("http") ? \`<iframe src="\${urlBleu}" class="preview-iframe" title="Aperçu Bleu"></iframe>\` : ''}
+                ${urlBleu.includes("http") ? `<iframe src="${urlBleu}" class="preview-iframe" title="Aperçu Bleu"></iframe>` : ""}
             </div>
             
             <div class="card" style="border-top: 4px solid #e63946;">
                 <div class="card-header">
-                    \${urlRouge.includes("attente") ? '<div class="loading-badge"><div class="spinner"></div> Génération du tunnel Rouge...</div>' : ""}
-                    <a href="\${urlRouge.includes("http") ? urlRouge : "#"}" target="_blank" class="btn btn-rouge" style="\${urlRouge.includes("attente") ? "opacity:0.5; pointer-events:none;" : ""}">Plein écran ROUGE</a>
-                    <div class="url">\${urlRouge}</div>
+                    ${urlRouge.includes("attente") ? '<div class="loading-badge"><div class="spinner"></div> Génération du tunnel Rouge...</div>' : ""}
+                    <a href="${urlRouge.includes("http") ? urlRouge : "#"}" target="_blank" class="btn btn-rouge" style="${urlRouge.includes("attente") ? "opacity:0.5; pointer-events:none;" : ""}">Plein écran ROUGE</a>
+                    <div class="url">${urlRouge}</div>
                 </div>
-                \${urlRouge.includes("http") ? \`<iframe src="\${urlRouge}" class="preview-iframe" title="Aperçu Rouge"></iframe>\` : ''}
+                ${urlRouge.includes("http") ? `<iframe src="${urlRouge}" class="preview-iframe" title="Aperçu Rouge"></iframe>` : ""}
             </div>
         </div>
     </body>
