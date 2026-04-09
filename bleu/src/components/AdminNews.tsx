@@ -100,10 +100,10 @@ export const AdminNews: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <Link to={`/admin/actualites/${item.id}/preview`} className="p-2 text-[#6b7280] hover:text-[#007cba] hover:bg-[#007cba]/10 rounded-lg transition-colors" title="Aperçu & Commentaires">
+                    <Link to={`/cstb-bureau-5Xy8/actualites/${item.id}/preview`} className="p-2 text-[#6b7280] hover:text-[#007cba] hover:bg-[#007cba]/10 rounded-lg transition-colors" title="Aperçu & Commentaires">
                       <Eye size={18} />
                     </Link>
-                    <Link to={`/admin/actualites/${item.id}/edit`} className="p-2 text-[#6b7280] hover:text-[#007cba] hover:bg-[#007cba]/10 rounded-lg transition-colors" title="Modifier">
+                    <Link to={`/cstb-bureau-5Xy8/actualites/${item.id}/edit`} className="p-2 text-[#6b7280] hover:text-[#007cba] hover:bg-[#007cba]/10 rounded-lg transition-colors" title="Modifier">
                       <Edit size={18} />
                     </Link>
                     <button 

@@ -93,7 +93,7 @@ export const AdminEditorPage: React.FC = () => {
           date: formData.date
         });
       }
-      navigate('/admin');
+      navigate('/cstb-bureau-5Xy8');
     } catch (error) {
       console.error("Erreur sauvegarde", error);
       alert("Erreur réseau pendant la sauvegarde ! Assurez-vous que le serveur Node.js tourne.");
@@ -105,7 +105,7 @@ export const AdminEditorPage: React.FC = () => {
       {/* Header Éditeur */}
       <header className="h-16 bg-white border-b border-[#e2e8f0] flex items-center justify-between px-6 shrink-0 z-10">
         <div className="flex items-center gap-4">
-          <Link to="/admin" className="p-2 -ml-2 text-[#6b7280] hover:text-[#0f172a] hover:bg-[#f1f5f9] rounded-lg transition-colors">
+          <Link to="/cstb-bureau-5Xy8" className="p-2 -ml-2 text-[#6b7280] hover:text-[#0f172a] hover:bg-[#f1f5f9] rounded-lg transition-colors">
             <ArrowLeft size={20} />
           </Link>
           <div className="h-6 w-px bg-[#e2e8f0]"></div>

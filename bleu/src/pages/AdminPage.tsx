@@ -35,7 +35,7 @@ const AdminContent: React.FC<{ children?: React.ReactNode }> = ({ children }) =>
               <p className="text-[#6b7280]">Bienvenue dans votre espace de gestion CSTB Bénin.</p>
             </div>
             {activeTab === 'news' && (
-              <Link to="/admin/editor" className="bg-[#007cba] hover:bg-[#005a87] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#007cba]/20">
+              <Link to="/cstb-bureau-5Xy8/actualites/create" className="bg-[#007cba] hover:bg-[#005a87] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#007cba]/20">
                 <Plus size={20} /> Nouvel article
               </Link>
             )}

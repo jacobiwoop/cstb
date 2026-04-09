@@ -61,7 +61,7 @@ export const AdminArticlePreviewPage = () => {
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e8f0] justify-between">
         <div className="flex items-center gap-4">
-          <Link to="/admin" className="p-2 hover:bg-[#f1f5f9] rounded-xl transition-colors">
+          <Link to="/cstb-bureau-5Xy8" className="p-2 hover:bg-[#f1f5f9] rounded-xl transition-colors">
             <ArrowLeft size={20} className="text-[#6b7280]" />
           </Link>
           <div>

@@ -444,7 +444,7 @@ const Home = () => (
 
 export default function App() {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute = location.pathname.startsWith('/cstb-bureau-5Xy8');
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-[#ecfeff] selection:text-[#0891b2]">
@@ -458,11 +458,11 @@ export default function App() {
         <Route path="/actions" element={<ActionsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         {/* Routes Administration Cachées */}
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/admin/login" element={<AdminPage />} />
-        <Route path="/admin/actualites/create" element={<AdminPage><AdminEditorPage /></AdminPage>} />
-        <Route path="/admin/actualites/:id/edit" element={<AdminPage><AdminEditorPage /></AdminPage>} />
-        <Route path="/admin/actualites/:id/preview" element={<AdminPage><AdminArticlePreviewPage /></AdminPage>} />
+        <Route path="/cstb-bureau-5Xy8" element={<AdminPage />} />
+        <Route path="/cstb-bureau-5Xy8/login" element={<AdminPage />} />
+        <Route path="/cstb-bureau-5Xy8/actualites/create" element={<AdminPage><AdminEditorPage /></AdminPage>} />
+        <Route path="/cstb-bureau-5Xy8/actualites/:id/edit" element={<AdminPage><AdminEditorPage /></AdminPage>} />
+        <Route path="/cstb-bureau-5Xy8/actualites/:id/preview" element={<AdminPage><AdminArticlePreviewPage /></AdminPage>} />
       </Routes>
       {!isAdminRoute && <Footer />}
       {!isAdminRoute && <WhatsAppButton />}
