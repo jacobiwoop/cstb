@@ -28,7 +28,7 @@ RUN mkdir -p uploads
 # Variables d'environnement
 ENV PORT=3001
 ENV NODE_ENV=production
-ENV DATABASE_URL="file:./prisma/dev.db"
+ENV DATABASE_URL="file:/app/backend/prisma/dev.db"
 
 EXPOSE 3001
 
