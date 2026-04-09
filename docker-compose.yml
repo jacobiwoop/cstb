@@ -1,0 +1,36 @@
+services:
+  bleu:
+    build:
+      context: ./bleu
+      dockerfile: Dockerfile
+    container_name: cstb-bleu
+    restart: always
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./bleu/backend/prisma:/app/backend/prisma # Persistance de la BDD SQLite locale
+
+  rouge:
+    build:
+      context: ./rouge
+      dockerfile: Dockerfile
+    container_name: cstb-rouge
+    restart: always
+    ports:
+      - "3002:3002"
+
+  portal:
+    build:
+      context: .
+      dockerfile: Dockerfile.portal
+    container_name: cstb-portal
+    restart: always
+    ports:
+      - "80:8080" # Accessible sur le port 80 du serveur
+    depends_on:
+      - bleu
+      - rouge
+    environment:
+      - NODE_ENV=production
+      - BLEU_URL=http://bleu:3001
+      - ROUGE_URL=http://rouge:3002
