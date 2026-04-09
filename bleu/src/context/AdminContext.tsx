@@ -13,7 +13,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => LocalDB.get('is_logged_in', false));
 
   const login = (password: string) => {
-    if (password === 'admin123') { // Simple password for demo
+    if (password === '5ukun4') { // Mot de passe mis à jour
       setIsLoggedIn(true);
       LocalDB.save('is_logged_in', true);
       return true;
