@@ -1,13 +1,55 @@
 const express = require("express");
 const cors = require("cors");
 const { PrismaClient } = require("@prisma/client");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 const app = express();
 const prisma = new PrismaClient();
 
+// Configuration Multer pour le stockage des images
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, "uploads");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    // Nettoyage du nom de fichier original + timestamp pour l'unicité
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+});
+
+// Middleware
 app.use(cors());
-app.use(express.json({ limit: "50mb" })); // 50mb limite haute pour autoriser les images base64 temporairement
+app.use(express.json({ limit: "50mb" }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Endpoint pour l'upload d'images
+app.post("/api/upload", upload.single("image"), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Aucun fichier téléchargé" });
+    }
+    // On renvoie l'URL relative de l'image
+    const imageUrl = `/uploads/${req.file.filename}`;
+    res.json({ imageUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur lors de l'upload de l'image" });
+  }
+});
 
 // ======================================
 // ROUTES API - GESTION DES ARTICLES

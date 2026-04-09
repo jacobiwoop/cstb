@@ -23,6 +23,7 @@ COPY --from=builder /app/dist ./dist
 WORKDIR /app/backend
 RUN npm install --production
 RUN npx prisma generate
+RUN mkdir -p uploads
 
 # Variables d'environnement
 ENV PORT=3001

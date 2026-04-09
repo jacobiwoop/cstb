@@ -9,6 +9,7 @@ services:
       - "3001:3001"
     volumes:
       - ./bleu/backend/prisma:/app/backend/prisma # Persistance de la BDD SQLite locale
+      - ./bleu/backend/uploads:/app/backend/uploads # Persistance des images physiques
 
   rouge:
     build:

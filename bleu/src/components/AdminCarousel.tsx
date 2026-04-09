@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Edit, Image as ImageIcon, Save, Trash2, Plus, UploadCloud, Link as LinkIcon, Type } from 'lucide-react';
 import { motion } from 'motion/react';
-import { slideApi } from '../utils/api';
+import { slideApi, mediaApi } from '../utils/api';
 
 export const AdminCarousel: React.FC = () => {
   const [slides, setSlides] = useState<any[]>([]);
@@ -89,18 +89,19 @@ export const AdminCarousel: React.FC = () => {
     setEditFormData(newSlide);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("L'image est trop volumineuse (max 5 Mo).");
+      if (file.size > 10 * 1024 * 1024) {
+        alert("L'image est trop volumineuse (max 10 Mo).");
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditFormData({ ...editFormData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      try {
+        const { imageUrl } = await mediaApi.upload(file);
+        setEditFormData({ ...editFormData, image: imageUrl });
+      } catch (err) {
+        alert("Erreur lors de l'upload de l'image");
+      }
     }
   };
 

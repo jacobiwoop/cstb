@@ -103,3 +103,18 @@ export const commentApi = {
     return true;
   }
 };
+
+export const mediaApi = {
+  upload: async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const res = await fetch(`${API_URL}/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!res.ok) throw new Error('Erreur lors de l\'upload du fichier');
+    return res.json(); // Retourne { imageUrl: '/uploads/xxx.jpg' }
+  }
+};

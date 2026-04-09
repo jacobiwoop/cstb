@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
-import { articleApi } from '../utils/api';
+import { articleApi, mediaApi } from '../utils/api';
 import { ArrowLeft, Save, Eye, LayoutTemplate, Image as ImageIcon, UploadCloud } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AdminLogin } from './AdminLogin';
@@ -80,23 +80,16 @@ export const AdminEditorPage: React.FC = () => {
 
   const handleSave = async () => {
     try {
+      // Pas de changement ici car formData.image contiendra l'URL retournée par l'upload
       if (isEditing && id) {
-        // Mode modification -> PUT API
-        await articleApi.update(id, {
-          ...formData,
-          date: formData.date
-        });
+        await articleApi.update(id, formData);
       } else {
-        // Mode Création -> POST API
-        await articleApi.create({
-          ...formData,
-          date: formData.date
-        });
+        await articleApi.create(formData);
       }
       navigate('/cstb-bureau-5Xy8');
     } catch (error) {
       console.error("Erreur sauvegarde", error);
-      alert("Erreur réseau pendant la sauvegarde ! Assurez-vous que le serveur Node.js tourne.");
+      alert("Erreur réseau pendant la sauvegarde !");
     }
   };
 
@@ -179,12 +172,15 @@ export const AdminEditorPage: React.FC = () => {
                     const input = document.createElement('input');
                     input.type = 'file';
                     input.accept = 'image/*';
-                    input.onchange = (e: any) => {
+                    input.onchange = async (e: any) => {
                       const file = e.target.files[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => setFormData({...formData, image: e.target?.result as string});
-                        reader.readAsDataURL(file);
+                        try {
+                          const { imageUrl } = await mediaApi.upload(file);
+                          setFormData({...formData, image: imageUrl});
+                        } catch (err) {
+                          alert("Erreur lors du téléchargement de l'image");
+                        }
                       }
                     };
                     input.click();
