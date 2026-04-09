@@ -142,6 +142,7 @@ export const AdminCarousel: React.FC = () => {
                   const displayImage = editingId === slide.id ? editFormData?.image : slide.image;
                   return displayImage ? (
                     <img 
+                      key={displayImage}
                       src={getMediaUrl(displayImage)} 
                       alt="Slide"
                       className="w-full h-full object-cover"
