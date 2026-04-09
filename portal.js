@@ -28,9 +28,10 @@ function startTunnel(target, name) {
   tunnel.on("close", () => setTimeout(() => startTunnel(target, name), 5000));
 }
 
-// Lancement des tunnels vers les services internes du Docker network
+// Lancement des tunnels
 startTunnel(targetBleu, "Bleu");
 startTunnel(targetRouge, "Rouge");
+startTunnel("http://localhost:8080", "Portail"); // Accès distant au hub lui-même 🚀
 
 app.get("/", (req, res) => {
   res.send(`
