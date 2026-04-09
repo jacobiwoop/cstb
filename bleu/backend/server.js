@@ -264,7 +264,6 @@ app.delete("/api/slides/:id", async (req, res) => {
 // ======================================
 // DÉMARRAGE DU SERVEUR / SERVE FRONTEND
 // ======================================
-const path = require("path");
 
 // Pour que le backend serve le frontend compilé de Vite
 app.use(express.static(path.join(__dirname, "../dist")));
