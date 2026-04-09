@@ -262,7 +262,7 @@ export const AdminEditorPage: React.FC = () => {
 
               {formData.image && (
                 <div className="aspect-video w-full overflow-hidden bg-gray-200">
-                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={getMediaUrl(formData.image)} alt="Preview" className="w-full h-full object-cover" />
                 </div>
               )}
 

@@ -138,19 +138,22 @@ export const AdminCarousel: React.FC = () => {
               
               {/* Zone Image */}
               <div className="w-full lg:w-72 aspect-video bg-gray-200 rounded-xl mb-6 lg:mb-0 overflow-hidden shrink-0 relative group">
-                {displayImage ? (
-                  <img 
-                    src={getMediaUrl(displayImage)} 
-                    alt="Slide"
-                    className="w-full h-full object-cover"
-                    onError={(e: any) => { e.target.style.display = 'none'; }}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#007cba]/10 flex flex-col items-center justify-center text-[#007cba]">
-                    <ImageIcon size={32} className="mb-2" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Aucune image</span>
-                  </div>
-                )}
+                {(() => {
+                  const displayImage = editingId === slide.id ? editFormData?.image : slide.image;
+                  return displayImage ? (
+                    <img 
+                      src={getMediaUrl(displayImage)} 
+                      alt="Slide"
+                      className="w-full h-full object-cover"
+                      onError={(e: any) => { e.target.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-[#007cba]/10 flex flex-col items-center justify-center text-[#007cba]">
+                      <ImageIcon size={32} className="mb-2" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Aucune image</span>
+                    </div>
+                  );
+                })()}
 
                 {/* Overlay pour modifier l'image (si on édite ce slide) */}
                 {editingId === slide.id && (
