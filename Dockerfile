@@ -22,7 +22,7 @@ RUN npm run build
 WORKDIR /app/bleu/backend
 RUN npm install
 RUN npx prisma generate
-RUN npx prisma migrate deploy
+RUN DATABASE_URL="file:./prisma/dev.db" npx prisma migrate deploy
 
 # 6. Installation & Build : Application ROUGE (Frontend pur)
 WORKDIR /app/rouge
