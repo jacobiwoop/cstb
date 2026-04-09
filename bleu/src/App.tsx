@@ -347,7 +347,7 @@ const Footer = () => {
         
         <div className="border-t border-[#e2e8f0] mt-16 pt-8 flex flex-col md:flex-row items-center justify-between text-[#6b7280] text-sm font-light">
           <p>&copy; {new Date().getFullYear()} {settings.siteName}. Tous droits réservés.</p>
-          <Link to="/admin" className="mt-4 md:mt-0 flex items-center gap-2 hover:text-[#007cba] transition-colors font-bold">
+          <Link to="/cstb-bureau-5Xy8" className="mt-4 md:mt-0 flex items-center gap-2 hover:text-[#007cba] transition-colors font-bold">
             <Lock size={14} /> Espace Admin
           </Link>
         </div>
