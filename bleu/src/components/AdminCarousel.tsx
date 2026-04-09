@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Edit, Image as ImageIcon, Save, Trash2, Plus, UploadCloud, Link as LinkIcon, Type } from 'lucide-react';
 import { motion } from 'motion/react';
-import { slideApi, mediaApi } from '../utils/api';
+import { slideApi, mediaApi, getMediaUrl } from '../utils/api';
 
 export const AdminCarousel: React.FC = () => {
   const [slides, setSlides] = useState<any[]>([]);
@@ -138,9 +138,9 @@ export const AdminCarousel: React.FC = () => {
               
               {/* Zone Image */}
               <div className="w-full lg:w-72 aspect-video bg-gray-200 rounded-xl mb-6 lg:mb-0 overflow-hidden shrink-0 relative group">
-                {(editingId === slide.id && editFormData?.image) || (!editingId && slide.image) ? (
+                {displayImage ? (
                   <img 
-                    src={editingId === slide.id ? editFormData.image : slide.image} 
+                    src={getMediaUrl(displayImage)} 
                     alt="Slide"
                     className="w-full h-full object-cover"
                     onError={(e: any) => { e.target.style.display = 'none'; }}

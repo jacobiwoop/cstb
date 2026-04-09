@@ -1,5 +1,12 @@
 const isDev = import.meta.env.DEV;
 const API_URL = isDev ? 'http://localhost:3001/api' : '/api';
+const MEDIA_URL = isDev ? 'http://localhost:3001' : ''; // Pas de préfixe en prod (relatif)
+
+export const getMediaUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path; // Image externe ou base64
+  return `${MEDIA_URL}${path}`; // Image locale /uploads/...
+};
 
 export const articleApi = {
   // Récupérer tous les articles
