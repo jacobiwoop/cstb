@@ -35,6 +35,7 @@ function startTunnel(localPort, name) {
 // 1. Démarrer Bleu (Backend Express qui sert également le Frontend React compilé) sur le port 3001
 const bleuProc = spawn("node", ["server.js"], {
   cwd: path.join(__dirname, "bleu", "backend"),
+  env: { ...process.env, PORT: "3001" },
 });
 bleuProc.stdout.on("data", (d) => console.log(`[BLEU] ${d.toString().trim()}`));
 bleuProc.stderr.on("data", (d) =>
