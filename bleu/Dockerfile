@@ -32,5 +32,5 @@ ENV DATABASE_URL="file:/app/backend/prisma/dev.db"
 
 EXPOSE 3001
 
-# Appliquer les migrations et démarrer le serveur
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+# Appliquer les modifications et démarrer le serveur
+CMD ["sh", "-c", "npx prisma db push && node server.js"]
