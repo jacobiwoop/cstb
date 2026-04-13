@@ -1,42 +1,36 @@
-FROM node:20-bullseye
+# ---- Stage 1: Build Frontend ----
+FROM node:20-bullseye AS builder
 
-# 1. Installation de Cloudflared
-RUN apt-get update && apt-get install -y wget
-RUN wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-RUN dpkg -i cloudflared-linux-amd64.deb || true
-RUN apt-get install -f -y
-
-# 2. Installation de Serve pour le frontend statique (Rouge)
-RUN npm install -g serve
-
-# 3. Préparation du répertoire de travail
 WORKDIR /app
 COPY . /app
 
-# 4. Installation & Build : Application BLEU (Frontend)
-WORKDIR /app/bleu
+# Installer et compiler le frontend Vite
 RUN npm install
 RUN npm run build
 
-# 5. Installation & Préparation : Application BLEU (Backend API + Serveur statique)
-WORKDIR /app/bleu/backend
-RUN npm install
-RUN npx prisma generate
-RUN DATABASE_URL="file:./prisma/dev.db" npx prisma migrate deploy
+# ---- Stage 2: Runtime ----
+FROM node:20-bullseye-slim AS runtime
 
-# 6. Installation & Build : Application ROUGE (Frontend pur)
-WORKDIR /app/rouge
-RUN npm install
-RUN npm run build
-
-# 7. Préparation du point d'entrée pour Render
 WORKDIR /app
-RUN npm init -y && npm install express
 
-EXPOSE 8080
-ENV PORT=8080
+# Copier le backend
+COPY --from=builder /app/backend ./backend
+
+# Copier le frontend compilé dans le dossier que le backend va servir
+COPY --from=builder /app/dist ./dist
+
+# Installer les dépendances de production du backend uniquement
+WORKDIR /app/backend
+RUN npm install --production
+RUN npx prisma generate
+RUN mkdir -p uploads
+
+# Variables d'environnement
+ENV PORT=3001
 ENV NODE_ENV=production
-ENV DATABASE_URL="file:./prisma/dev.db"
+ENV DATABASE_URL="file:/app/backend/prisma/dev.db"
 
-# 8. Lancement du script coordinateur
-CMD ["node", "entrypoint.js"]
+EXPOSE 3001
+
+# Appliquer les modifications et démarrer le serveur
+CMD ["sh", "-c", "npx prisma db push && node server.js"]
