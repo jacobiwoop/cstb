@@ -7,6 +7,7 @@ import { AdminNews } from '../components/AdminNews';
 import { AdminNewsletter } from '../components/AdminNewsletter';
 import { AdminCarousel } from '../components/AdminCarousel';
 import { AdminSettings } from '../components/AdminSettings';
+import { AdminDonations } from '../components/AdminDonations';
 import { AdminActions } from '../components/AdminActions';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
@@ -17,6 +18,7 @@ const tabLabels: Record<string, string> = {
   news: 'Gestion des Actualités',
   actions: 'Gestion des Actions',
   carousel: 'Gestion du Carrousel',
+  donations: 'Campagne de Dons',
   newsletter: 'Liste Newsletter',
   settings: 'Paramètres du site',
 };
@@ -92,6 +94,7 @@ const AdminContent: React.FC<{ children?: React.ReactNode }> = ({ children }) =>
                   {activeTab === 'news' && <AdminNews />}
                   {activeTab === 'actions' && <AdminActions />}
                   {activeTab === 'newsletter' && <AdminNewsletter />}
+                  {activeTab === 'donations' && <AdminDonations />}
                   {activeTab === 'carousel' && <AdminCarousel />}
                   {activeTab === 'settings' && <AdminSettings />}
                 </motion.div>

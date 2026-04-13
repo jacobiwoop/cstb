@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { settingsApi } from '../utils/api';
-import { Save, Phone, Mail, MapPin, Globe, MessageCircle, Server, Key, RefreshCcw, Layout, Settings } from 'lucide-react';
+import { Save, Phone, Mail, MapPin, Globe, MessageCircle, Server, Key, RefreshCcw, Layout, Settings, Target, Coins, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const defaultSettings = {
@@ -15,7 +15,9 @@ const defaultSettings = {
   emailPort: "465",
   emailUser: "",
   emailPass: "",
-  brevoKey: ""
+  brevoKey: "",
+  donationGoal: 50000000,
+  donationCurrent: 7500000
 };
 
 export const AdminSettings: React.FC = () => {
@@ -159,7 +161,6 @@ export const AdminSettings: React.FC = () => {
                     <p className="text-[11px] text-green-600/70 mt-3 italic">Utilisé pour le bouton de discussion directe sur le site.</p>
                   </div>
                 </div>
-
                 {/* Adresse */}
                 <div className="space-y-6 md:col-span-2">
                    <h3 className="text-sm font-black text-[#0f172a] uppercase tracking-widest flex items-center gap-2">

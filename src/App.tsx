@@ -67,7 +67,9 @@ const defaultSettings = {
   email: "cstbsn@yahoo.fr",
   address: "Bourse du Travail, Cotonou, Bénin",
   whatsapp: "22995224834",
-  siteName: "CSTB"
+  siteName: "CSTB",
+  donationGoal: 50000000,
+  donationCurrent: 7500000
 };
 
 const Navbar = () => {

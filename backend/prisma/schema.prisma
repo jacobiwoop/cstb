@@ -69,3 +69,13 @@ model Setting {
   id    String @id
   value String // Stocké en JSON stringifié pour plus de flexibilité
 }
+
+model Donation {
+  id          Int      @id @default(autoincrement())
+  amount      Int
+  donorName   String
+  donorEmail  String
+  status      String   @default("SUCCESS") // "PENDING", "SUCCESS", "FAILED"
+  reference   String?  // ID de transaction FedaPay
+  createdAt   DateTime @default(now())
+}

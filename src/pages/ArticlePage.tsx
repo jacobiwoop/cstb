@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Calendar, Tag, User, ArrowLeft, Facebook, Twitter, Linkedin, Heart, MessageSquare, Send } from 'lucide-react';
 import { LocalDB } from '../utils/localDb';
-import { articleApi, getMediaUrl } from '../utils/api';
+import { articleApi, commentApi, getMediaUrl } from '../utils/api';
 
 export const ArticlePage = () => {
   const { id } = useParams();
@@ -11,61 +11,58 @@ export const ArticlePage = () => {
 
   const [article, setArticle] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
-  const [reactions, setReactions] = useState(() => LocalDB.get(`reactions_${articleId}`, {
-    likes: 124,
-    comments: [
-      { id: 1, author: "Jean Dupont", text: "Totalement en accord avec ces revendications. Il est temps de se faire entendre !", date: "Il y a 2 heures" },
-      { id: 2, author: "Marie Mensah", text: "Je serai présente à la Bourse du Travail ce vendredi. Solidarité !", date: "Il y a 5 heures" }
-    ],
-    isLiked: false
-  }));
-
+  const [isLiked, setIsLiked] = useState(() => LocalDB.get(`liked_${articleId}`, false));
   const [newComment, setNewComment] = useState("");
+
+  const fetchArticle = async () => {
+    try {
+      const data = await articleApi.getOne(articleId);
+      setArticle(data);
+    } catch (error) {
+      console.error("Erreur chargement article", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const fetchArticle = async () => {
-      try {
-        const data = await articleApi.getOne(articleId);
-        setArticle(data);
-      } catch (error) {
-        console.error("Erreur chargement article", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchArticle();
   }, [articleId]);
 
-  const handleLike = () => {
-    const updated = {
-      ...reactions,
-      likes: reactions.isLiked ? reactions.likes - 1 : reactions.likes + 1,
-      isLiked: !reactions.isLiked
-    };
-    setReactions(updated);
-    LocalDB.save(`reactions_${articleId}`, updated);
+  const handleLike = async () => {
+    try {
+      const newLikedState = !isLiked;
+      const newLikes = newLikedState ? (article.likes + 1) : Math.max(0, article.likes - 1);
+      
+      await articleApi.update(articleId, { ...article, likes: newLikes });
+      
+      setArticle({ ...article, likes: newLikes });
+      setIsLiked(newLikedState);
+      LocalDB.save(`liked_${articleId}`, newLikedState);
+    } catch (error) {
+      console.error("Erreur like", error);
+    }
   };
 
-  const handleAddComment = (e: React.FormEvent) => {
+  const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
     
-    const comment = {
-      id: Date.now(),
-      author: "Utilisateur Anonyme",
-      text: newComment,
-      date: "À l'instant"
-    };
-    
-    const updated = {
-      ...reactions,
-      comments: [comment, ...reactions.comments]
-    };
-    setReactions(updated);
-    LocalDB.save(`reactions_${articleId}`, updated);
-    setNewComment("");
+    try {
+      await commentApi.create({
+        author: "Utilisateur Anonyme",
+        text: newComment,
+        articleId: articleId,
+        date: "À l'instant"
+      });
+      
+      setNewComment("");
+      fetchArticle(); // Rafraîchir pour voir le nouveau commentaire
+    } catch (error) {
+      console.error("Erreur ajout commentaire", error);
+      alert("Impossible d'ajouter le commentaire");
+    }
   };
 
   if (isLoading) {
@@ -160,14 +157,14 @@ export const ArticlePage = () => {
           <div className="flex items-center gap-6">
             <button 
               onClick={handleLike}
-              className={`flex items-center gap-2 font-bold transition-colors ${reactions.isLiked ? 'text-red-500' : 'text-[#6b7280] hover:text-red-500'}`}
+              className={`flex items-center gap-2 font-bold transition-colors ${isLiked ? 'text-red-500' : 'text-[#6b7280] hover:text-red-500'}`}
             >
-              <Heart size={24} className={reactions.isLiked ? "fill-current" : ""} />
-              <span>{reactions.likes} {reactions.likes > 1 ? "J'aimes" : "J'aime"}</span>
+              <Heart size={24} className={isLiked ? "fill-current" : ""} />
+              <span>{article.likes} {article.likes > 1 ? "J'aimes" : "J'aime"}</span>
             </button>
             <div className="flex items-center gap-2 font-bold text-[#6b7280]">
               <MessageSquare size={24} />
-              <span>{reactions.comments.length} {reactions.comments.length > 1 ? 'Commentaires' : 'Commentaire'}</span>
+              <span>{article.comments?.length || 0} {article.comments?.length > 1 ? 'Commentaires' : 'Commentaire'}</span>
             </div>
           </div>
         </div>
@@ -186,7 +183,7 @@ export const ArticlePage = () => {
 
         {/* Comments Section */}
         <div className="mt-16">
-          <h3 className="text-2xl font-sans font-bold text-[#0f172a] mb-8">Commentaires ({reactions.comments.length})</h3>
+          <h3 className="text-2xl font-sans font-bold text-[#0f172a] mb-8">Commentaires ({article.comments?.length || 0})</h3>
           
           {/* Add Comment Form */}
           <form onSubmit={handleAddComment} className="mb-12 bg-[#f8fafc] p-6 rounded-[12px] border border-[#e2e8f0]">
@@ -211,7 +208,7 @@ export const ArticlePage = () => {
 
           {/* Comments List */}
           <div className="space-y-6">
-            {reactions.comments.map((comment: any) => (
+            {(article.comments || []).map((comment: any) => (
               <div key={comment.id} className="flex gap-4">
                 <div className="w-12 h-12 bg-[#e2e8f0] rounded-full flex items-center justify-center text-[#6b7280] shrink-0">
                   <User size={24} />
@@ -222,6 +219,13 @@ export const ArticlePage = () => {
                     <span className="text-xs text-[#94a3b8] font-mono">{comment.date}</span>
                   </div>
                   <p className="text-[#475569] leading-relaxed">{comment.text}</p>
+                  
+                  {comment.adminReply && (
+                    <div className="mt-4 p-4 bg-[#f8fafc] border-l-4 border-[#007cba] rounded-r-xl">
+                      <p className="text-xs font-bold text-[#007cba] uppercase tracking-wider mb-1">Réponse de la CSTB</p>
+                      <p className="text-sm text-[#334155] italic">"{comment.adminReply}"</p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

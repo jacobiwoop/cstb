@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { articleApi } from '../utils/api';
-import { Edit, Trash2, Plus, Search, Eye, ThumbsUp, MessageSquare } from 'lucide-react';
+import { articleApi, getMediaUrl, PLACEHOLDER_IMAGE } from '../utils/api';
+import { Edit, Trash2, Plus, Search, Eye, ThumbsUp, MessageSquare, Newspaper } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 
@@ -77,10 +77,13 @@ export const AdminNews: React.FC = () => {
               <tr key={item.id} className="hover:bg-[#f8fafc]/50 transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-gray-200 overflow-hidden shrink-0">
-                      <div className="w-full h-full bg-[#007cba]/10 flex items-center justify-center text-[#007cba]">
-                        <Newspaper size={20} />
-                      </div>
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0 border border-[#f1f5f9]">
+                      <img 
+                        src={getMediaUrl(item.image)} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover"
+                        onError={(e: any) => { e.target.src = PLACEHOLDER_IMAGE; }}
+                      />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-[#0f172a] line-clamp-1">{item.title}</p>
@@ -134,4 +137,4 @@ export const AdminNews: React.FC = () => {
   );
 };
 
-import { Newspaper } from 'lucide-react';
+

@@ -173,6 +173,27 @@ app.delete("/api/articles/:id", async (req, res) => {
 // ROUTES API - GESTION DES COMMENTAIRES
 // ======================================
 
+// POST: Créer un nouveau commentaire
+app.post("/api/comments", async (req, res) => {
+  try {
+    const { author, text, date, articleId } = req.body;
+    const newComment = await prisma.comment.create({
+      data: {
+        author: author || "Utilisateur Anonyme",
+        text,
+        date: date || new Date().toLocaleDateString("fr-FR"),
+        articleId: parseInt(articleId),
+      },
+    });
+    res.status(201).json(newComment);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Erreur lors de la création du commentaire" });
+  }
+});
+
 // PUT: Répondre à un commentaire (en tant qu'admin)
 app.put("/api/comments/:id", async (req, res) => {
   try {
@@ -362,7 +383,7 @@ app.post("/api/newsletter/send", async (req, res) => {
 app.get("/api/actions", async (req, res) => {
   try {
     const actions = await prisma.action.findMany({
-      orderBy: { order: "asc" },
+      orderBy: [{ date: "asc" }, { order: "asc" }],
     });
     res.json(actions);
   } catch (error) {
@@ -442,6 +463,68 @@ app.post("/api/settings", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur enregistrement paramètres" });
+  }
+});
+
+// --- DONS & TRANSACTIONS ---
+
+// GET: Liste des dons
+app.get("/api/donations", async (req, res) => {
+  try {
+    const donations = await prisma.donation.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(donations);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur récupération des dons" });
+  }
+});
+
+// POST: Enregistrer un nouveau don
+app.get("/api/donations/stats", async (req, res) => {
+  try {
+    const totalRaised = await prisma.donation.aggregate({
+      where: { status: "SUCCESS" },
+      _sum: { amount: true },
+    });
+
+    const setting = await prisma.setting.findUnique({
+      where: { id: "site_settings" },
+    });
+
+    let goal = 50000000;
+    if (setting) {
+      const vals = JSON.parse(setting.value);
+      goal = vals.donationGoal || 50000000;
+    }
+
+    res.json({
+      amount: totalRaised._sum.amount || 0,
+      goal: goal,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur statistiques dons" });
+  }
+});
+
+app.post("/api/donations", async (req, res) => {
+  try {
+    const { amount, donorName, donorEmail, reference } = req.body;
+    const donation = await prisma.donation.create({
+      data: {
+        amount: parseInt(amount),
+        donorName,
+        donorEmail,
+        reference,
+        status: "SUCCESS",
+      },
+    });
+    res.status(201).json(donation);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur enregistrement du don" });
   }
 });
 

@@ -6,6 +6,23 @@ const MEDIA_URL = isDev ? 'http://localhost:3001' : ''; // Pas de préfixe en pr
 
 export const PLACEHOLDER_IMAGE = noImage;
 
+export const formatActionDate = (dateStr: string) => {
+  if (!dateStr) return "";
+  // Si c'est déjà un format lisible (non YYYY-MM-DD), on le garde
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return dateStr;
+  }
+};
+
 export const getMediaUrl = (path: string) => {
   if (!path) return noImage;
   if (path.startsWith('http') || path.startsWith('data:')) return path; // Image externe ou base64
@@ -96,6 +113,16 @@ export const slideApi = {
 };
 
 export const commentApi = {
+  create: async (data: any) => {
+    const res = await fetch(`${API_URL}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Erreur de création du commentaire');
+    return res.json();
+  },
+  
   update: async (id: number | string, data: { adminReply: string | null }) => {
     const res = await fetch(`${API_URL}/comments/${id}`, {
       method: 'PUT',
@@ -221,6 +248,28 @@ export const statsApi = {
   get: async () => {
     const res = await fetch(`${API_URL}/admin/stats`);
     if (!res.ok) throw new Error('Erreur lors de la récupération des stats');
+    return res.json();
+  },
+};
+
+export const donationApi = {
+  getAll: async () => {
+    const res = await fetch(`${API_URL}/donations`);
+    if (!res.ok) throw new Error('Erreur lors de la récupération des dons');
+    return res.json();
+  },
+  getStats: async () => {
+    const res = await fetch(`${API_URL}/donations/stats`);
+    if (!res.ok) throw new Error('Erreur lors de la récupération des stats de dons');
+    return res.json();
+  },
+  create: async (data: { amount: number, donorName: string, donorEmail: string, reference: string }) => {
+    const res = await fetch(`${API_URL}/donations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Erreur lors de l'enregistrement du don");
     return res.json();
   },
 };

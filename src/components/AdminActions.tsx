@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { actionApi, mediaApi, getMediaUrl, PLACEHOLDER_IMAGE, articleApi } from '../utils/api';
+import { actionApi, mediaApi, getMediaUrl, PLACEHOLDER_IMAGE, articleApi, formatActionDate } from '../utils/api';
 import { Edit, Trash2, Plus, Search, Calendar, Image as ImageIcon, X, Save, UploadCloud, Link as LinkIcon, Type, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -43,8 +43,7 @@ export const AdminActions: React.FC = () => {
         date: '',
         description: '',
         image: '',
-        articleId: null,
-        order: actions.length
+        articleId: null
       });
     }
     setIsEditing(true);
@@ -154,8 +153,9 @@ export const AdminActions: React.FC = () => {
                   <Trash2 size={16} />
                 </button>
               </div>
+              {/* Overlay date formatée */}
               <div className="absolute bottom-3 left-3 bg-[#007cba] text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
-                {action.date}
+                {formatActionDate(action.date)}
               </div>
             </div>
             <div className="p-5">
@@ -226,11 +226,10 @@ export const AdminActions: React.FC = () => {
                     </label>
                     <input 
                       required
-                      type="text" 
+                      type="date" 
                       value={currentAction.date}
                       onChange={e => setCurrentAction({...currentAction, date: e.target.value})}
                       className="w-full px-4 py-3 rounded-xl border border-[#e2e8f0] focus:border-[#007cba] outline-none transition-all text-sm"
-                      placeholder="Ex: Mai 2025"
                     />
                   </div>
                 </div>
@@ -382,15 +381,6 @@ export const AdminActions: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-[#6b7280] uppercase tracking-wider">Ordre d'affichage</label>
-                      <input 
-                        type="number" 
-                        value={currentAction.order}
-                        onChange={e => setCurrentAction({...currentAction, order: parseInt(e.target.value) || 0})}
-                        className="w-full px-4 py-3 rounded-xl border border-[#e2e8f0] focus:border-[#007cba] outline-none transition-all text-sm"
-                      />
-                    </div>
                   </div>
                 </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Newspaper, Image as ImageIcon, Mail, Phone, LogOut, X, Menu, Zap } from 'lucide-react';
+import { LayoutDashboard, Newspaper, Image as ImageIcon, Mail, Phone, LogOut, X, Menu, Zap, Heart } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import mainLogo from '../assets/logo/Group-48095879.svg';
 
@@ -18,6 +18,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, 
     { id: 'news', label: 'Actualités', icon: <Newspaper size={20} /> },
     { id: 'actions', label: 'Actions / Luttes', icon: <Zap size={20} /> },
     { id: 'carousel', label: 'Carrousel', icon: <ImageIcon size={20} /> },
+    { id: 'donations', label: 'Campagne de Dons', icon: <Heart size={20} /> },
     { id: 'newsletter', label: 'Newsletter', icon: <Mail size={20} /> },
     { id: 'settings', label: 'Paramètres', icon: <Phone size={20} /> },
   ];

@@ -1,14 +1,98 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Heart, CheckCircle2, Play, ArrowRight, Activity, Users, Shield } from 'lucide-react';
+import { Heart, CheckCircle2, Play, ArrowRight, Activity, Users, Shield, User, Mail, Coins, CreditCard } from 'lucide-react';
+import { donationApi, settingsApi } from '../utils/api';
+import { LocalDB } from '../utils/localDb';
 
 export const Vote = () => {
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(10000);
+  const [customAmount, setCustomAmount] = useState<string>("");
+  const [donorInfo, setDonorInfo] = useState({
+    firstname: "",
+    lastname: "",
+    email: ""
+  });
+  
+  const [stats, setStats] = useState<any>({ amount: 0, goal: 50000000 });
   const amounts = [5000, 10000, 25000, 50000, 100000];
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    loadFedaPay();
+    fetchSettings();
   }, []);
+
+  const loadFedaPay = () => {
+    if (!document.getElementById('fedapay-checkout-js')) {
+      const script = document.createElement('script');
+      script.id = 'fedapay-checkout-js';
+      script.src = 'https://cdn.fedapay.com/checkout.js?v=1.1.7';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const statsData = await donationApi.getStats();
+      setStats(statsData);
+    } catch (error) {
+      console.error("Erreur chargement stats dons:", error);
+    }
+  };
+
+  const handleDonate = () => {
+    const amount = customAmount ? parseInt(customAmount) : selectedAmount;
+    if (!amount || amount < 100) {
+      alert("Veuillez sélectionner ou saisir un montant valide (min 100 FCFA)");
+      return;
+    }
+
+    if (!donorInfo.firstname || !donorInfo.lastname || !donorInfo.email) {
+      alert("Veuillez remplir vos informations (Nom, Prénom, Email)");
+      return;
+    }
+
+    // @ts-ignore - FedaPay est chargé via script externe
+    if (window.FedaPay) {
+      // @ts-ignore
+      window.FedaPay.checkout({
+        public_key: 'pk_sandbox_68_j_mD_8W0mZsh8_S9N_0W73', // Clé de test par défaut
+        transaction: {
+          amount: amount,
+          description: "Don pour le projet CSTB - Un toit pour la santé"
+        },
+        customer: {
+          firstname: donorInfo.firstname,
+          lastname: donorInfo.lastname,
+          email: donorInfo.email
+        },
+        onComplete: async (response: any) => {
+          if (response.transaction.status === 'approved' || response.transaction.status === 'success') {
+            try {
+              await donationApi.create({
+                amount: amount,
+                donorName: `${donorInfo.firstname} ${donorInfo.lastname}`,
+                donorEmail: donorInfo.email,
+                reference: response.transaction.id.toString()
+              });
+              alert("Merci infiniment pour votre don ! Votre contribution a été enregistrée.");
+              fetchSettings(); // Rafraîchir la barre de progression
+            } catch (err) {
+              console.error("Erreur enregistrement don:", err);
+            }
+          }
+        }
+      });
+    } else {
+      alert("Le service de paiement est en cours de chargement. Veuillez réessayer dans un instant.");
+    }
+  };
+
+  // Calculs pour la barre de progression
+  const current = stats.amount;
+  const goal = stats.goal;
+  const percentage = Math.min(100, Math.round((current / goal) * 100));
 
   return (
     <div className="bg-white min-h-screen font-sans">
@@ -98,17 +182,17 @@ export const Vote = () => {
           <div className="bg-[#0891b2] p-6 md:p-12 md:w-1/2">
             <h3 className="text-[#0f172a] text-xl md:text-2xl font-sans font-bold mb-6">Fonds Récoltés</h3>
             <div className="relative w-full h-2 bg-black/10 rounded-full mb-4">
-              <div className="absolute top-0 left-0 h-full bg-[#0f172a] rounded-full w-[15%]"></div>
-              <div className="absolute -top-8 left-[15%] -translate-x-1/2 text-[#0f172a] font-bold text-sm">15%</div>
+              <div className="absolute top-0 left-0 h-full bg-[#0f172a] rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }}></div>
+              <div className="absolute -top-8 font-bold text-sm text-[#0f172a]" style={{ left: `${percentage}%`, transform: 'translateX(-50%)' }}>{percentage}%</div>
             </div>
             <div className="flex justify-between text-[#0f172a] font-bold">
               <div>
                 <span className="block text-xs md:text-sm opacity-80">Récolté</span>
-                <span className="text-lg md:text-xl">7 500 000 FCFA</span>
+                <span className="text-lg md:text-xl">{current.toLocaleString('fr-FR')} FCFA</span>
               </div>
               <div className="text-right">
                 <span className="block text-xs md:text-sm opacity-80">Objectif</span>
-                <span className="text-lg md:text-xl">50 000 000 FCFA</span>
+                <span className="text-lg md:text-xl">{goal.toLocaleString('fr-FR')} FCFA</span>
               </div>
             </div>
           </div>
@@ -279,36 +363,69 @@ export const Vote = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white rounded-[12px] p-6 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.1)] max-w-md mx-auto lg:mx-0 lg:ml-auto w-full lg:translate-y-16"
+              className="bg-white rounded-[24px] p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] max-w-md mx-auto lg:mx-0 lg:ml-auto w-full lg:translate-y-16 border border-[#f1f5f9]"
             >
-              <h3 className="text-xl font-sans font-bold text-[#0f172a] mb-8 md:mb-10 text-center">Soutien pour l'acquisition</h3>
+              <h3 className="text-2xl font-sans font-bold text-[#0f172a] mb-6 text-center">Soutenir le projet</h3>
               
-              {/* Progress Bar */}
-              <div className="mb-10 md:mb-12">
-                <div className="relative w-full h-2 bg-[#e2e8f0] rounded-full mb-4">
-                  <div className="absolute top-0 left-0 h-full bg-[#005a87] rounded-full w-[15%]">
-                    {/* Thumb */}
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-white border-[3px] border-[#005a87] rounded-full"></div>
-                    {/* Percentage Tooltip */}
-                    <div className="absolute right-0 -top-8 translate-x-1/2 text-xs font-bold text-[#6b7280]">15%</div>
+              {/* Informations Donneur */}
+              <div className="space-y-4 mb-8">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8]" size={16} />
+                    <input 
+                      type="text" 
+                      placeholder="Prénom"
+                      value={donorInfo.firstname}
+                      onChange={e => setDonorInfo({...donorInfo, firstname: e.target.value})}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e2e8f0] focus:border-[#005a87] outline-none text-sm transition-all"
+                    />
+                  </div>
+                  <div className="relative">
+                    <input 
+                      type="text" 
+                      placeholder="Nom"
+                      value={donorInfo.lastname}
+                      onChange={e => setDonorInfo({...donorInfo, lastname: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl border border-[#e2e8f0] focus:border-[#005a87] outline-none text-sm transition-all"
+                    />
                   </div>
                 </div>
-                <div className="flex justify-between text-xs md:text-sm font-bold text-[#6b7280]">
-                  <span>Récolté: 7.5M</span>
-                  <span>Objectif: 50M</span>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8]" size={16} />
+                  <input 
+                    type="email" 
+                    placeholder="Email"
+                    value={donorInfo.email}
+                    onChange={e => setDonorInfo({...donorInfo, email: e.target.value})}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e2e8f0] focus:border-[#005a87] outline-none text-sm transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Progress Bar Mini */}
+              <div className="mb-8 p-4 bg-[#f8fafc] rounded-2xl border border-[#f1f5f9]">
+                <div className="flex justify-between text-[10px] font-bold text-[#6b7280] uppercase tracking-wider mb-2">
+                  <span>Progression</span>
+                  <span>{percentage}%</span>
+                </div>
+                <div className="relative w-full h-1.5 bg-[#e2e8f0] rounded-full">
+                  <div className="absolute top-0 left-0 h-full bg-[#005a87] rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }}></div>
                 </div>
               </div>
 
               {/* Amount Buttons */}
-              <div className="flex flex-wrap justify-center gap-2 md:gap-x-4 md:gap-y-6 mb-10 md:mb-12">
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 {amounts.map((amount) => (
                   <button
                     key={amount}
-                    onClick={() => setSelectedAmount(amount)}
-                    className={`py-2 px-4 md:px-6 rounded-full font-bold transition-all text-xs md:text-sm ${
-                      selectedAmount === amount 
-                        ? 'bg-[#005a87] text-white shadow-custom-2' 
-                        : 'bg-transparent text-[#6b7280] hover:bg-[#f1f5f9]'
+                    onClick={() => {
+                      setSelectedAmount(amount);
+                      setCustomAmount("");
+                    }}
+                    className={`py-2 px-1 rounded-xl font-bold transition-all text-[11px] border ${
+                      selectedAmount === amount && !customAmount
+                        ? 'bg-[#005a87] text-white border-[#005a87] shadow-sm' 
+                        : 'bg-white text-[#6b7280] border-[#e2e8f0] hover:bg-[#f8fafc]'
                     }`}
                   >
                     {amount.toLocaleString('fr-FR')} FCFA
@@ -316,11 +433,32 @@ export const Vote = () => {
                 ))}
               </div>
 
+              {/* Custom Amount */}
+              <div className="relative mb-8">
+                <Coins className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8]" size={16} />
+                <input 
+                  type="number" 
+                  placeholder="Autre montant (FCFA)"
+                  value={customAmount}
+                  onChange={e => {
+                    setCustomAmount(e.target.value);
+                    setSelectedAmount(null);
+                  }}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e2e8f0] focus:border-[#005a87] outline-none text-sm transition-all font-bold"
+                />
+              </div>
+
               {/* Submit Button */}
-              <div className="text-center">
-                <button className="w-full sm:w-auto bg-[#005a87] text-white font-bold py-3 px-8 rounded-full hover:bg-[#007cba] transition-all hover:shadow-custom-1 inline-flex items-center justify-center gap-2 text-sm">
-                  Faire un don <Heart size={16} className="fill-white" />
-                </button>
+              <button 
+                onClick={handleDonate}
+                className="w-full bg-[#005a87] text-white font-bold py-4 rounded-xl hover:bg-[#007cba] transition-all hover:shadow-lg flex items-center justify-center gap-3 text-base group"
+              >
+                Contribuer maintenant 
+                <CreditCard size={20} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+              
+              <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-[#94a3b8] font-medium uppercase tracking-widest">
+                <Shield size={12} /> Paiement 100% sécurisé via FedaPay
               </div>
             </motion.div>
 

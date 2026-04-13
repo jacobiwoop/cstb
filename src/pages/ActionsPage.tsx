@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { actionApi, getMediaUrl, PLACEHOLDER_IMAGE } from '../utils/api';
+import { actionApi, getMediaUrl, PLACEHOLDER_IMAGE, formatActionDate } from '../utils/api';
 
 export default function ActionsPage() {
   const [actions, setActions] = useState<any[]>([]);
@@ -71,7 +71,7 @@ export default function ActionsPage() {
                 <div className="p-6 flex flex-col flex-grow">
                   <div className="flex items-center gap-2 text-[#6b7280] text-sm font-medium mb-3">
                     <Calendar size={16} />
-                    {action.date}
+                    {formatActionDate(action.date)}
                   </div>
                   <h3 className="text-xl font-sans font-bold mb-3 text-[#0f172a] line-clamp-2">{action.title}</h3>
                   <p className="text-[#6b7280] text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
@@ -106,7 +106,7 @@ export default function ActionsPage() {
             <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-px h-full bg-[#cbd5e1]"></div>
             
             <div className="space-y-16">
-              {[...actions].reverse().map((action, index) => (
+              {actions.map((action, index) => (
                 <motion.div 
                   key={action.id || index}
                   initial={{ opacity: 0, y: 30 }}
@@ -117,7 +117,7 @@ export default function ActionsPage() {
                 >
                   <div className="w-full md:w-5/12 mb-8 md:mb-0">
                     <div className={`p-8 bg-white border border-[#e2e8f0] hover:border-[#007cba]/50 transition-colors shadow-custom-4 rounded-[8px] ${index % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}>
-                      <span className="text-[#007cba] font-bold text-sm mb-3 block tracking-wider uppercase">{action.date}</span>
+                      <span className="text-[#007cba] font-bold text-sm mb-3 block tracking-wider uppercase">{formatActionDate(action.date)}</span>
                       <h3 className="text-2xl font-sans font-bold mb-4">{action.title}</h3>
                       <p className="text-[#6b7280] font-light leading-relaxed">{action.description}</p>
                     </div>
