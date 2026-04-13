@@ -26,8 +26,10 @@ export const Vote = () => {
     if (!document.getElementById('fedapay-checkout-js')) {
       const script = document.createElement('script');
       script.id = 'fedapay-checkout-js';
-      script.src = 'https://cdn.fedapay.com/checkout.js?v=1.1.7';
+      script.src = 'https://cdn.fedapay.com/checkout.js?v=2.1.2';
       script.async = true;
+      script.onload = () => console.log("SDK FedaPay chargé dynamiquement");
+      script.onerror = () => console.error("Erreur chargement SDK FedaPay");
       document.body.appendChild(script);
     }
   };
@@ -54,10 +56,12 @@ export const Vote = () => {
     }
 
     // @ts-ignore - FedaPay est chargé via script externe
-    if (window.FedaPay) {
-      // @ts-ignore
-      window.FedaPay.checkout({
-        public_key: 'pk_sandbox_68_j_mD_8W0mZsh8_S9N_0W73', // Clé de test par défaut
+    const fp = (window as any).FedaPay;
+    
+    if (fp) {
+      const checkoutOptions = {
+        public_key: stats.publicKey || '',
+        environment: stats.mode || 'sandbox',
         transaction: {
           amount: amount,
           description: "Don pour le projet CSTB - Un toit pour la santé"
@@ -77,15 +81,38 @@ export const Vote = () => {
                 reference: response.transaction.id.toString()
               });
               alert("Merci infiniment pour votre don ! Votre contribution a été enregistrée.");
-              fetchSettings(); // Rafraîchir la barre de progression
+              fetchSettings(); 
             } catch (err) {
               console.error("Erreur enregistrement don:", err);
             }
           }
         }
-      });
+      };
+
+      console.log(`Initialisation FedaPay (${checkoutOptions.environment}) avec la clé: ${checkoutOptions.public_key}`);
+
+      try {
+        if (typeof fp.init === 'function') {
+          const res = fp.init(checkoutOptions);
+          if (res && typeof res.open === 'function') {
+            res.open();
+          } else if (typeof (window as any).FedaPay.open === 'function') {
+             (window as any).FedaPay.open();
+          }
+        } else if (typeof fp.checkout === 'function') {
+          fp.checkout(checkoutOptions);
+        } else if (typeof fp === 'function') {
+          fp(checkoutOptions);
+        } else {
+          console.error("Structure FedaPay non reconnue");
+          alert("Impossible d'ouvrir le module de paiement.");
+        }
+      } catch (err: any) {
+        console.error("Erreur FedaPay:", err);
+        alert("Erreur: " + err.message);
+      }
     } else {
-      alert("Le service de paiement est en cours de chargement. Veuillez réessayer dans un instant.");
+      alert("Le service de paiement est encore en cours de chargement.");
     }
   };
 

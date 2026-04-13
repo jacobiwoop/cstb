@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { settingsApi } from '../utils/api';
-import { Save, Phone, Mail, MapPin, Globe, MessageCircle, Server, Key, RefreshCcw, Layout, Settings, Target, Coins, Heart } from 'lucide-react';
+import { Save, Phone, Mail, MapPin, Globe, MessageCircle, Server, Key, RefreshCcw, Layout, Settings, Target, Coins, Heart, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const defaultSettings = {
@@ -17,7 +17,10 @@ const defaultSettings = {
   emailPass: "",
   brevoKey: "",
   donationGoal: 50000000,
-  donationCurrent: 7500000
+  fedaMode: "sandbox",
+  fedaPublicKey: "pk_sandbox_68_j_mD_8W0mZsh8_S9N_0W73",
+  fedaSecretKey: "",
+  fedaWebhookSecret: ""
 };
 
 export const AdminSettings: React.FC = () => {
@@ -281,6 +284,61 @@ export const AdminSettings: React.FC = () => {
                     </div>
                   </div>
                 )}
+                {/* Configuration FedaPay */}
+                <div className="space-y-6">
+                  <h3 className="text-sm font-black text-[#0f172a] uppercase tracking-widest flex items-center gap-2">
+                    <Zap size={16} className="text-yellow-500" /> API FedaPay
+                  </h3>
+                  <div className="bg-yellow-50/30 p-8 rounded-3xl border border-yellow-100/50 space-y-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <label className="text-xs font-bold text-yellow-700 uppercase">Environnement</label>
+                      <select 
+                        value={settings.fedaMode || 'sandbox'}
+                        onChange={(e) => setSettings({...settings, fedaMode: e.target.value})}
+                        className="bg-white border border-yellow-200 rounded-lg px-4 py-2 text-xs font-bold outline-none"
+                      >
+                        <option value="sandbox">Sandbox (Test)</option>
+                        <option value="live">Live (Production)</option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-[10px] font-black text-yellow-700 mb-2 uppercase tracking-widest">Clé Publique</label>
+                        <input 
+                          type="text" 
+                          placeholder="pk_live_..."
+                          value={settings.fedaPublicKey}
+                          onChange={(e) => setSettings({...settings, fedaPublicKey: e.target.value})}
+                          className="w-full bg-white border border-yellow-200 rounded-xl p-4 focus:border-yellow-500 outline-none font-mono text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-yellow-700 mb-2 uppercase tracking-widest">Clé Secrète</label>
+                        <input 
+                          type="password" 
+                          placeholder="sk_live_..."
+                          value={settings.fedaSecretKey}
+                          onChange={(e) => setSettings({...settings, fedaSecretKey: e.target.value})}
+                          className="w-full bg-white border border-yellow-200 rounded-xl p-4 focus:border-yellow-500 outline-none font-mono text-sm"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] font-black text-yellow-700 mb-2 uppercase tracking-widest">Secret Webhook</label>
+                        <input 
+                          type="text" 
+                          placeholder="wh_live_..."
+                          value={settings.fedaWebhookSecret}
+                          onChange={(e) => setSettings({...settings, fedaWebhookSecret: e.target.value})}
+                          className="w-full bg-white border border-yellow-200 rounded-xl p-4 focus:border-yellow-500 outline-none font-mono text-sm"
+                        />
+                        <p className="text-[10px] text-yellow-600/70 mt-2 italic">
+                          URL Webhook à configurer chez FedaPay : <code className="bg-yellow-100 px-1 rounded">https://votre-domaine.com/api/fedapay/webhook</code>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}

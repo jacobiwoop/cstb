@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diagnostic FedaPay - Test des Clés</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f4f7f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 450px;
+      }
+      h1 {
+        color: #005a87;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: #4b5563;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 1rem;
+        background: #0891b2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 1rem;
+      }
+      button:hover {
+        background: #006ba1;
+      }
+      .note {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-top: 1rem;
+        text-align: center;
+      }
+      #status {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>FedaPay Diagnostic</h1>
+
+      <div class="form-group">
+        <label>Clé Publique (Public Key)</label>
+        <input
+          type="text"
+          id="publicKey"
+          placeholder="pk_live_... ou pk_sandbox_..."
+          value="pk_live_byT16ail49Dfucs59V0ZmG0O"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Environnement</label>
+        <select id="environment">
+          <option value="live">Live (Production)</option>
+          <option value="sandbox">Sandbox (Test)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Montant (FCFA)</label>
+        <input type="number" id="amount" value="100" />
+      </div>
+
+      <button id="testBtn">Tester l'ouverture de la modale</button>
+
+      <div class="note">
+        Si la modale s'ouvre, c'est que la clé est valide.<br />
+        Si vous voyez "Account non trouvé", vérifiez votre dashboard FedaPay.
+      </div>
+
+      <div id="status"></div>
+    </div>
+
+    <script src="https://cdn.fedapay.com/checkout.js?v=2.1.2"></script>
+    <script>
+      document.getElementById("testBtn").addEventListener("click", function () {
+        const pk = document.getElementById("publicKey").value;
+        const env = document.getElementById("environment").value;
+        const amt = document.getElementById("amount").value;
+        const statusDiv = document.getElementById("status");
+
+        if (!pk) {
+          alert("Veuillez saisir une clé publique");
+          return;
+        }
+
+        console.log("Démarrage du test avec:", pk, env);
+
+        try {
+          if (window.FedaPay && typeof window.FedaPay.init === "function") {
+            const checkout = window.FedaPay.init({
+              public_key: pk,
+              environment: env,
+              transaction: {
+                amount: amt,
+                description: "Test de diagnostic CSTB",
+              },
+            });
+
+            if (checkout && typeof checkout.open === "function") {
+              checkout.open();
+            } else if (typeof window.FedaPay.open === "function") {
+              window.FedaPay.open();
+            }
+          } else {
+            alert("Le SDK FedaPay n'est pas chargé sur cette page.");
+          }
+        } catch (e) {
+          console.error(e);
+          alert("Erreur: " + e.message);
+        }
+      });
+    </script>
+  </body>
+</html>

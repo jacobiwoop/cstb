@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { PrismaClient } = require("@prisma/client");
+const { FedaPay, Webhook } = require("fedapay");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -34,6 +35,53 @@ const upload = multer({
 
 // Middleware
 app.use(cors());
+
+// --- ROUTE WEBHOOK FEDAPAY (Avant express.json pour le raw body) ---
+app.post(
+  "/api/fedapay/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const sig = req.headers["x-fedapay-signature"];
+    if (!sig) return res.status(400).send("Signature manquante");
+
+    try {
+      const setting = await prisma.setting.findUnique({
+        where: { id: "site_settings" },
+      });
+      if (!setting) return res.status(400).send("Settings missing");
+
+      const s = JSON.parse(setting.value);
+      const webhookSecret = s.fedaWebhookSecret;
+      if (!webhookSecret) return res.status(400).send("Webhook secret missing");
+
+      const event = Webhook.constructEvent(req.body, sig, webhookSecret);
+
+      if (event.name === "transaction.approved") {
+        const transaction = event.data;
+
+        // Enregistrement sécurisé (upsert)
+        await prisma.donation.upsert({
+          where: { reference: transaction.id.toString() },
+          update: { status: "SUCCESS" },
+          create: {
+            amount: transaction.amount,
+            donorName: `${transaction.customer.firstname} ${transaction.customer.lastname}`,
+            donorEmail: transaction.customer.email,
+            reference: transaction.id.toString(),
+            status: "SUCCESS",
+          },
+        });
+        console.log(`[FedaPay] Don approuvé et enregistré: ${transaction.id}`);
+      }
+
+      res.json({ received: true });
+    } catch (err) {
+      console.error("[FedaPay Webhook Error]:", err.message);
+      res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+  },
+);
+
 app.use(express.json({ limit: "50mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -492,16 +540,13 @@ app.get("/api/donations/stats", async (req, res) => {
     const setting = await prisma.setting.findUnique({
       where: { id: "site_settings" },
     });
-
-    let goal = 50000000;
-    if (setting) {
-      const vals = JSON.parse(setting.value);
-      goal = vals.donationGoal || 50000000;
-    }
+    const s = setting ? JSON.parse(setting.value) : {};
 
     res.json({
       amount: totalRaised._sum.amount || 0,
-      goal: goal,
+      goal: s.donationGoal || 50000000,
+      publicKey: s.fedaPublicKey || "",
+      mode: s.fedaMode || "sandbox",
     });
   } catch (error) {
     console.error(error);
