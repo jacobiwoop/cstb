@@ -1,36 +1,55 @@
-# ---- Stage 1: Build Frontend ----
+# ---- Étape 1 : Build du Frontend ----
 FROM node:20-bullseye AS builder
 
 WORKDIR /app
-COPY . /app
-
-# Installer et compiler le frontend Vite
+COPY package*.json ./
 RUN npm install
+COPY . .
 RUN npm run build
 
-# ---- Stage 2: Runtime ----
-FROM node:20-bullseye-slim AS runtime
+# ---- Étape 2 : Runtime Backend ----
+FROM node:20-bullseye-slim
 
 WORKDIR /app
 
-# Copier le backend
-COPY --from=builder /app/backend ./backend
+# Installation de openssl (nécessaire pour Prisma sur Debian)
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copier le frontend compilé dans le dossier que le backend va servir
-COPY --from=builder /app/dist ./dist
-
-# Installer les dépendances de production du backend uniquement
+# Copie des fichiers backend
+COPY backend/package*.json ./backend/
 WORKDIR /app/backend
 RUN npm install --production
-RUN npx prisma generate
-RUN mkdir -p uploads
 
-# Variables d'environnement
+# Copie du schéma Prisma et génération du client
+COPY backend/prisma ./prisma/
+RUN npx prisma generate
+
+# Copie du reste du code backend
+COPY backend/ .
+
+# Copie du frontend buildé vers le dossier dist que le backend sert
+COPY --from=builder /app/dist /app/dist
+
+# Configuration pour SQLite persistant (si un disque est monté sur /data)
+ENV DATABASE_URL="file:/app/backend/prisma/dev.db"
 ENV PORT=3001
 ENV NODE_ENV=production
-ENV DATABASE_URL="file:/app/backend/prisma/dev.db"
 
 EXPOSE 3001
 
-# Appliquer les modifications et démarrer le serveur
+# Script de démarrage : assure la migration de la base et lance le serveur
+# ... reste du Dockerfile ...
+
+# Variables d'environnement (remplacent le fichier .env)
+ENV PORT=3001
+ENV NODE_ENV=production
+ENV DATABASE_URL="file:/app/backend/prisma/dev.db"
+ENV EMAIL_HOST="smtp.gmail.com"
+ENV EMAIL_PORT=465
+ENV EMAIL_USER="ton-email@gmail.com"
+ENV EMAIL_PASS="ton-mot-de-passe-ici"
+ENV EMAIL_PROVIDER="GMAIL"
+
+# Script de démarrage
 CMD ["sh", "-c", "npx prisma db push && node server.js"]
+

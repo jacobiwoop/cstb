@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: cstb-benin-app
+    runtime: docker
+    plan: free
+    region: frankfurt # Choisissez la région la plus proche du Bénin si disponible, sinon Frankfurt
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/app/backend/data/dev.db
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: cstb-benin-app
+          property: host
+    disk:
+      name: cstb-data
+      mountPath: /app/backend/data
+      sizeGB: 1
