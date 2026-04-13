@@ -36,9 +36,9 @@ const upload = multer({
 // Middleware
 app.use(cors());
 
-// --- ROUTE WEBHOOK FEDAPAY (Avant express.json pour le raw body) ---
+// --- ROUTE WEBHOOK FEDAPAY (Obfusquée pour plus de sécurité) ---
 app.post(
-  "/api/fedapay/webhook",
+  "/api/hooks/feda-92k3-p1z0",
   express.raw({ type: "application/json" }),
   async (req, res) => {
     const sig = req.headers["x-fedapay-signature"];
