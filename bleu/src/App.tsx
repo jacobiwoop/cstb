@@ -12,9 +12,12 @@ import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
 import { AdminEditorPage } from './pages/AdminEditorPage';
 import { AdminArticlePreviewPage } from './pages/AdminArticlePreviewPage';
+import { AdminMailEditor } from './pages/AdminMailEditor';
+import { UnsubscribePage } from './pages/UnsubscribePage';
 import Newsletter from './components/Newsletter';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import mainLogo from './assets/logo/Group-48095879.svg';
+import { articleApi, getMediaUrl, PLACEHOLDER_IMAGE } from './utils/api';
 
 import imgCDTN from "./assets/partenaire/CDTN-qe3z0h0gzdfe8lccbg98x6x31oshyuvhrr6ef7kaxo.png";
 import imgCGTB from "./assets/partenaire/CGTB-qe3z0h0gzdfe8lccbg98x6x31oshyuvhrr6ef7kaxo.png";
@@ -357,29 +360,36 @@ const Footer = () => {
 };
 
 const News = () => {
-  const newsItems = [
-    {
-      date: "2 Avril 2026",
-      category: "Communiqué",
-      title: "Appel à la mobilisation générale pour les droits des travailleurs",
-      excerpt: "La CSTB appelle tous les travailleurs à se mobiliser pour défendre les acquis sociaux face aux nouvelles mesures gouvernementales.",
-      image: articleImg1
-    },
-    {
-      date: "15 Mars 2026",
-      category: "Éducation",
-      title: "Succès de la plateforme éducative soutenue par l'UNESCO",
-      excerpt: "Plus de 5000 enseignants ont déjà rejoint notre nouvelle plateforme de formation continue, renforçant ainsi la qualité de l'enseignement.",
-      image: articleImg2
-    },
-    {
-      date: "28 Février 2026",
-      category: "Négociation",
-      title: "Avancées significatives sur la convention collective",
-      excerpt: "Après plusieurs semaines de négociations intenses, des accords de principe ont été trouvés concernant la revalorisation salariale.",
-      image: articleImg3
-    }
-  ];
+  const [newsItems, setNewsItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const data = await articleApi.getAll();
+        // On ne garde que les 3 derniers articles pour la page d'accueil
+        setNewsItems(data.slice(0, 3));
+      } catch (error) {
+        console.error("Erreur lors du chargement des actualités :", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchNews();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section id="actualites" className="py-32 bg-white text-center">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-8 w-64 bg-gray-200 rounded mb-4"></div>
+          <p className="text-gray-400">Chargement des actualités...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (newsItems.length === 0) return null;
 
   return (
     <section id="actualites" className="py-32 bg-white text-[#0f172a] border-b border-[#e2e8f0]">
@@ -397,7 +407,7 @@ const News = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {newsItems.map((item, index) => (
             <motion.div 
-              key={index}
+              key={item.id || index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -406,20 +416,21 @@ const News = () => {
             >
               <div className="relative h-48 overflow-hidden">
                 <img 
-                  src={item.image} 
+                  src={getMediaUrl(item.image)} 
                   alt={item.title} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
+                  onError={(e: any) => { e.target.src = PLACEHOLDER_IMAGE; }}
                 />
                 <div className="absolute top-4 left-4 bg-[#007cba] text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
                   {item.category}
                 </div>
               </div>
               <div className="p-6 flex flex-col flex-grow">
-                <span className="text-[#6b7280] text-sm font-mono mb-3">{item.date}</span>
+                <span className="text-[#6b7280] text-sm font-mono mb-3">{item.formattedDate || new Date(item.createdAt).toLocaleDateString()}</span>
                 <h3 className="text-xl font-sans font-bold mb-3 group-hover:text-[#007cba] transition-colors line-clamp-2">{item.title}</h3>
                 <p className="text-[#6b7280] font-light text-sm leading-relaxed mb-6 line-clamp-3 flex-grow">{item.excerpt}</p>
-                <Link to={`/actualites/${index + 1}`} className="inline-flex items-center gap-2 text-sm font-bold text-[#0f172a] group-hover:text-[#007cba] transition-colors mt-auto">
+                <Link to={`/actualites/${item.id}`} className="inline-flex items-center gap-2 text-sm font-bold text-[#0f172a] group-hover:text-[#007cba] transition-colors mt-auto">
                   Lire la suite <ChevronRight size={16} />
                 </Link>
               </div>
@@ -457,12 +468,14 @@ export default function App() {
         <Route path="/qui-sommes-nous" element={<AboutPage />} />
         <Route path="/actions" element={<ActionsPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/unsubscribe" element={<UnsubscribePage />} />
         {/* Routes Administration Cachées */}
         <Route path="/cstb-bureau-5Xy8" element={<AdminPage />} />
         <Route path="/cstb-bureau-5Xy8/login" element={<AdminPage />} />
         <Route path="/cstb-bureau-5Xy8/actualites/create" element={<AdminPage><AdminEditorPage /></AdminPage>} />
         <Route path="/cstb-bureau-5Xy8/actualites/:id/edit" element={<AdminPage><AdminEditorPage /></AdminPage>} />
         <Route path="/cstb-bureau-5Xy8/actualites/:id/preview" element={<AdminPage><AdminArticlePreviewPage /></AdminPage>} />
+        <Route path="/cstb-bureau-5Xy8/newsletter/compose" element={<AdminMailEditor />} />
       </Routes>
       {!isAdminRoute && <Footer />}
       {!isAdminRoute && <WhatsAppButton />}

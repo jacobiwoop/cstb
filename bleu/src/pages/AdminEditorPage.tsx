@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
-import { articleApi, mediaApi } from '../utils/api';
+import { articleApi, mediaApi, getMediaUrl } from '../utils/api';
 import { ArrowLeft, Save, Eye, LayoutTemplate, Image as ImageIcon, UploadCloud } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AdminLogin } from './AdminLogin';

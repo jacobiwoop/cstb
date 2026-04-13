@@ -1,14 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Newspaper, Users, Heart, MessageSquare, TrendingUp } from 'lucide-react';
+import { Newspaper, Users, Heart, MessageSquare, TrendingUp, Loader2 } from 'lucide-react';
+import { statsApi } from '../utils/api';
+
+interface StatsData {
+  articles: number;
+  subscribers: number;
+  likes: number;
+  comments: number;
+  recentActivity: any[];
+}
 
 export const AdminStats: React.FC = () => {
+  const [data, setData] = useState<StatsData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const stats = await statsApi.get();
+        setData(stats);
+      } catch (error) {
+        console.error('Erreur stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const stats = [
-    { label: 'Articles de presse', value: '42', icon: <Newspaper />, color: 'bg-blue-500' },
-    { label: 'Abonnés Newsletter', value: '1,280', icon: <Users />, color: 'bg-green-500' },
-    { label: 'Réactions totales', value: '3,450', icon: <Heart />, color: 'bg-red-500' },
-    { label: 'Commentaires', value: '156', icon: <MessageSquare />, color: 'bg-purple-500' },
+    { label: 'Articles de presse', value: data?.articles || 0, icon: <Newspaper />, color: 'bg-blue-500' },
+    { label: 'Abonnés Newsletter', value: data?.subscribers || 0, icon: <Users />, color: 'bg-green-500' },
+    { label: 'Réactions totales', value: data?.likes || 0, icon: <Heart />, color: 'bg-red-500' },
+    { label: 'Commentaires', value: data?.comments || 0, icon: <MessageSquare />, color: 'bg-purple-500' },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <Loader2 className="w-8 h-8 text-[#007cba] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -25,7 +59,7 @@ export const AdminStats: React.FC = () => {
               {stat.icon}
             </div>
             <p className="text-[#6b7280] text-sm font-bold uppercase tracking-wider mb-1">{stat.label}</p>
-            <p className="text-3xl font-sans font-extrabold text-[#0f172a]">{stat.value}</p>
+            <p className="text-3xl font-sans font-extrabold text-[#0f172a]">{stat.value.toLocaleString()}</p>
           </motion.div>
         ))}
       </div>
@@ -36,20 +70,24 @@ export const AdminStats: React.FC = () => {
           <h2 className="text-xl font-bold text-[#0f172a]">Activité récente</h2>
         </div>
         <div className="space-y-4">
-          {[1, 2, 3].map((_, i) => (
-            <div key={i} className="flex items-center justify-between py-4 border-b border-[#f1f5f9] last:border-0">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-[#f8fafc] rounded-full flex items-center justify-center">
-                  <div className="w-2 h-2 bg-[#007cba] rounded-full"></div>
+          {data?.recentActivity && data.recentActivity.length > 0 ? (
+            data.recentActivity.map((activity, i) => (
+              <div key={i} className="flex items-center justify-between py-4 border-b border-[#f1f5f9] last:border-0">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-[#f8fafc] rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-[#007cba] rounded-full"></div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#0f172a]">{activity.title}</p>
+                    <p className="text-xs text-[#94a3b8]">{new Date(activity.date).toLocaleDateString()} - {activity.email}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-[#0f172a]">Nouvelle inscription newsletter</p>
-                  <p className="text-xs text-[#94a3b8]">Il y a {i * 15 + 5} minutes</p>
-                </div>
+                <span className="text-xs font-mono text-[#94a3b8]">{activity.id}</span>
               </div>
-              <span className="text-xs font-mono text-[#94a3b8]">id_73829{i}</span>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-sm text-[#64748b] text-center py-10">Aucune activité récente.</p>
+          )}
         </div>
       </div>
     </div>

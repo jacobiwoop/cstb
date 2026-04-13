@@ -7,6 +7,7 @@ import { AdminNews } from '../components/AdminNews';
 import { AdminNewsletter } from '../components/AdminNewsletter';
 import { AdminCarousel } from '../components/AdminCarousel';
 import { AdminSettings } from '../components/AdminSettings';
+import { AdminActions } from '../components/AdminActions';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Plus, Menu } from 'lucide-react';
@@ -14,6 +15,7 @@ import { Plus, Menu } from 'lucide-react';
 const tabLabels: Record<string, string> = {
   stats: 'Tableau de bord',
   news: 'Gestion des Actualités',
+  actions: 'Gestion des Actions',
   carousel: 'Gestion du Carrousel',
   newsletter: 'Liste Newsletter',
   settings: 'Paramètres du site',
@@ -88,6 +90,7 @@ const AdminContent: React.FC<{ children?: React.ReactNode }> = ({ children }) =>
                 >
                   {activeTab === 'stats' && <AdminStats />}
                   {activeTab === 'news' && <AdminNews />}
+                  {activeTab === 'actions' && <AdminActions />}
                   {activeTab === 'newsletter' && <AdminNewsletter />}
                   {activeTab === 'carousel' && <AdminCarousel />}
                   {activeTab === 'settings' && <AdminSettings />}

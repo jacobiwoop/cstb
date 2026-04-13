@@ -1,10 +1,14 @@
+import noImage from '../assets/no-image.jpg';
+
 const isDev = import.meta.env.DEV;
 const API_URL = isDev ? 'http://localhost:3001/api' : '/api';
 const MEDIA_URL = isDev ? 'http://localhost:3001' : ''; // Pas de préfixe en prod (relatif)
 
+export const PLACEHOLDER_IMAGE = noImage;
+
 export const getMediaUrl = (path: string) => {
-  if (!path) return '';
-  if (path.startsWith('http')) return path; // Image externe ou base64
+  if (!path) return noImage;
+  if (path.startsWith('http') || path.startsWith('data:')) return path; // Image externe ou base64
   return `${MEDIA_URL}${path}`; // Image locale /uploads/...
 };
 
@@ -111,6 +115,78 @@ export const commentApi = {
   }
 };
 
+export const actionApi = {
+  getAll: async () => {
+    const res = await fetch(`${API_URL}/actions`);
+    if (!res.ok) throw new Error('Erreur lors de la récupération des actions');
+    return res.json();
+  },
+  
+  create: async (data: any) => {
+    const res = await fetch(`${API_URL}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Erreur de création de l\'action');
+    return res.json();
+  },
+  
+  update: async (id: number | string, data: any) => {
+    const res = await fetch(`${API_URL}/actions/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Erreur de mise à jour de l\'action');
+    return res.json();
+  },
+  
+  delete: async (id: number | string) => {
+    const res = await fetch(`${API_URL}/actions/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Erreur de suppression de l\'action');
+    return true;
+  }
+};
+
+export const newsletterApi = {
+  subscribe: async (email: string) => {
+    const res = await fetch(`${API_URL}/newsletter`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Erreur d'inscription");
+    }
+    return res.json();
+  },
+  getAll: async () => {
+    const res = await fetch(`${API_URL}/newsletter`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  },
+  delete: async (id: number) => {
+    await fetch(`${API_URL}/newsletter/${id}`, { method: 'DELETE' });
+  },
+  send: async (subject: string, content: string) => {
+    const res = await fetch(`${API_URL}/newsletter/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, content }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Erreur lors de l'envoi");
+    }
+    return res.json();
+  }
+};
+
 export const mediaApi = {
   upload: async (file: File) => {
     const formData = new FormData();
@@ -124,4 +200,27 @@ export const mediaApi = {
     if (!res.ok) throw new Error('Erreur lors de l\'upload du fichier');
     return res.json(); // Retourne { imageUrl: '/uploads/xxx.jpg' }
   }
+};
+export const settingsApi = {
+  get: async () => {
+    const res = await fetch(`${API_URL}/settings`);
+    if (!res.ok) return {};
+    return res.json();
+  },
+  update: async (settings: any) => {
+    const res = await fetch(`${API_URL}/settings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(settings),
+    });
+    if (!res.ok) throw new Error("Erreur lors de l'enregistrement des paramètres");
+    return res.json();
+  },
+};
+export const statsApi = {
+  get: async () => {
+    const res = await fetch(`${API_URL}/admin/stats`);
+    if (!res.ok) throw new Error('Erreur lors de la récupération des stats');
+    return res.json();
+  },
 };

@@ -5,6 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 require("dotenv").config();
+const { sendNewsletter } = require("./emailService");
 
 const app = express();
 const prisma = new PrismaClient();
@@ -262,7 +263,230 @@ app.delete("/api/slides/:id", async (req, res) => {
 });
 
 // ======================================
+// ROUTES API - GESTION DE LA NEWSLETTER
+// ======================================
+
+// GET: Récupérer tous les abonnés (Admin)
+app.get("/api/newsletter", async (req, res) => {
+  try {
+    const subscribers = await prisma.subscriber.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(subscribers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur récupération abonnés" });
+  }
+});
+
+// GET: Se désabonner de la newsletter
+app.get("/api/newsletter/unsubscribe", async (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).send("Email requis");
+
+  try {
+    await prisma.subscriber.delete({ where: { email: String(email) } });
+    res.redirect(
+      `${process.env.FRONTEND_URL || "http://localhost:3000"}/unsubscribe`,
+    );
+  } catch (error) {
+    res.redirect(
+      `${process.env.FRONTEND_URL || "http://localhost:3000"}/unsubscribe?error=1`,
+    );
+  }
+});
+
+// POST: S'inscrire à la newsletter
+app.post("/api/newsletter", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email requis" });
+
+  try {
+    const existing = await prisma.subscriber.findUnique({ where: { email } });
+    if (existing) return res.status(400).json({ error: "Déjà inscrit" });
+
+    const newSubscriber = await prisma.subscriber.create({
+      data: { email },
+    });
+    res.status(201).json(newSubscriber);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur inscription" });
+  }
+});
+
+// DELETE: Supprimer un abonné
+app.delete("/api/newsletter/:id", async (req, res) => {
+  try {
+    await prisma.subscriber.delete({
+      where: { id: parseInt(req.params.id) },
+    });
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur suppression abonné" });
+  }
+});
+
+// POST: Envoyer la newsletter à tous les abonnés
+app.post("/api/newsletter/send", async (req, res) => {
+  const { subject, content } = req.body;
+  if (!subject || !content) {
+    return res.status(400).json({ error: "Sujet et contenu requis" });
+  }
+
+  try {
+    const subscribers = await prisma.subscriber.findMany({
+      select: { email: true },
+    });
+
+    const emails = subscribers.map((s) => s.email);
+
+    if (emails.length === 0) {
+      return res.status(400).json({ error: "Aucun abonné trouvé" });
+    }
+
+    await sendNewsletter(emails, subject, content);
+    res.json({ success: true, count: emails.length });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Échec de l'envoi de la newsletter" });
+  }
+});
+
+// ======================================
+// ROUTES API - GESTION DES ACTIONS (LUTTES)
+// ======================================
+
+// GET: Récupérer toutes les actions
+app.get("/api/actions", async (req, res) => {
+  try {
+    const actions = await prisma.action.findMany({
+      orderBy: { order: "asc" },
+    });
+    res.json(actions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur récupération actions" });
+  }
+});
+
+// POST: Créer une action
+app.post("/api/actions", async (req, res) => {
+  try {
+    const newAction = await prisma.action.create({
+      data: req.body,
+    });
+    res.status(201).json(newAction);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur création action" });
+  }
+});
+
+// PUT: Modifier une action
+app.put("/api/actions/:id", async (req, res) => {
+  try {
+    const updatedAction = await prisma.action.update({
+      where: { id: parseInt(req.params.id) },
+      data: req.body,
+    });
+    res.json(updatedAction);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur mise à jour action" });
+  }
+});
+
+// DELETE: Supprimer une action
+app.delete("/api/actions/:id", async (req, res) => {
+  try {
+    await prisma.action.delete({
+      where: { id: parseInt(req.params.id) },
+    });
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur suppression action" });
+  }
+});
+
+// ======================================
+// ROUTES API - PARAMÈTRES DU SITE
+// ======================================
+
+// GET: Récupérer les paramètres
+app.get("/api/settings", async (req, res) => {
+  try {
+    const setting = await prisma.setting.findUnique({
+      where: { id: "site_settings" },
+    });
+    if (!setting) return res.json({});
+    res.json(JSON.parse(setting.value));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur récupération paramètres" });
+  }
+});
+
+// POST: Enregistrer les paramètres
+app.post("/api/settings", async (req, res) => {
+  try {
+    const value = JSON.stringify(req.body);
+    const updated = await prisma.setting.upsert({
+      where: { id: "site_settings" },
+      update: { value },
+      create: { id: "site_settings", value },
+    });
+    res.json(JSON.parse(updated.value));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur enregistrement paramètres" });
+  }
+});
+
+// ======================================
 // DÉMARRAGE DU SERVEUR / SERVE FRONTEND
+// --- STATS DASHBOARD ---
+app.get("/api/admin/stats", async (req, res) => {
+  try {
+    const articlesCount = await prisma.article.count();
+    const subscribersCount = await prisma.subscriber.count();
+    const commentsCount = await prisma.comment.count();
+
+    // Somme des likes
+    const likesAggregation = await prisma.article.aggregate({
+      _sum: { likes: true },
+    });
+    const totalLikes = likesAggregation._sum.likes || 0;
+
+    // Activité récente (5 dernières inscriptions)
+    const lastSubscribers = await prisma.subscriber.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+    });
+
+    const recentActivity = lastSubscribers.map((sub) => ({
+      id: `sub_${sub.id}`,
+      type: "newsletter",
+      title: "Nouvelle inscription newsletter",
+      email: sub.email,
+      date: sub.createdAt,
+    }));
+
+    res.json({
+      articles: articlesCount,
+      subscribers: subscribersCount,
+      likes: totalLikes,
+      comments: commentsCount,
+      recentActivity,
+    });
+  } catch (error) {
+    console.error("Erreur stats :", error);
+    res.status(500).json({ error: "Erreur lors de la récupération des stats" });
+  }
+});
+
 // ======================================
 
 // Pour que le backend serve le frontend compilé de Vite

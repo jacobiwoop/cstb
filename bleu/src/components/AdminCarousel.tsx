@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Edit, Image as ImageIcon, Save, Trash2, Plus, UploadCloud, Link as LinkIcon, Type } from 'lucide-react';
 import { motion } from 'motion/react';
-import { slideApi, mediaApi, getMediaUrl } from '../utils/api';
+import { slideApi, mediaApi, getMediaUrl, PLACEHOLDER_IMAGE } from '../utils/api';
 
 export const AdminCarousel: React.FC = () => {
   const [slides, setSlides] = useState<any[]>([]);
@@ -146,7 +146,7 @@ export const AdminCarousel: React.FC = () => {
                       src={getMediaUrl(displayImage)} 
                       alt="Slide"
                       className="w-full h-full object-cover"
-                      onError={(e: any) => { e.target.style.display = 'none'; }}
+                      onError={(e: any) => { e.target.src = PLACEHOLDER_IMAGE; }}
                     />
                   ) : (
                     <div className="w-full h-full bg-[#007cba]/10 flex flex-col items-center justify-center text-[#007cba]">

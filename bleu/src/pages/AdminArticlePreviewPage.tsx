@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { articleApi, commentApi } from '../utils/api';
+import { articleApi, commentApi, getMediaUrl } from '../utils/api';
 import { ArrowLeft, MessageSquare, Trash2, Reply, Send, User } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -76,7 +76,7 @@ export const AdminArticlePreviewPage = () => {
         <div className="xl:col-span-2 bg-white rounded-3xl border border-[#e2e8f0] shadow-sm overflow-hidden h-fit">
           {article.image && (
             <div className="w-full h-64 sm:h-80 relative">
-              <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
+              <img src={getMediaUrl(article.image)} alt={article.title} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <h2 className="absolute bottom-6 left-6 sm:left-8 right-6 sm:right-8 text-2xl sm:text-3xl font-black text-white drop-shadow-md leading-tight">
                 {article.title}

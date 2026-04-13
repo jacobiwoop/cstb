@@ -47,3 +47,25 @@ model Slide {
   order         Int      @default(0)
   createdAt     DateTime @default(now())
 }
+
+model Action {
+  id          Int      @id @default(autoincrement())
+  title       String
+  date        String   // Ex: "Mai 2025"
+  description String
+  image       String
+  articleId   Int?     // ID de l'article lié
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+model Setting {
+  id    String @id
+  value String // Stocké en JSON stringifié pour plus de flexibilité
+}

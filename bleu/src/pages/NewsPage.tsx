@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronRight, ChevronLeft, Calendar, Tag, ArrowRight, Search, Megaphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { articleApi } from '../utils/api';
+import { articleApi, getMediaUrl, PLACEHOLDER_IMAGE } from '../utils/api';
 import newsHeroImg from '../assets/2f2be7a217340647bfcfaebd36fdfaed.jpg';
 
 export const NewsPage = () => {
@@ -149,10 +149,11 @@ export const NewsPage = () => {
             >
               <div className="relative h-56 overflow-hidden">
                 <img 
-                  src={item.image} 
+                  src={getMediaUrl(item.image)} 
                   alt={item.title} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
+                  onError={(e: any) => { e.target.src = PLACEHOLDER_IMAGE; }}
                 />
                 <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-[#0f172a] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-custom-4 flex items-center gap-1.5">
                   <Tag size={12} className="text-[#007cba]" /> {item.category}

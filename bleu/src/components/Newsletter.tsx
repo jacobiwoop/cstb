@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
-import { LocalDB } from '../utils/localDb';
+import { newsletterApi } from '../utils/api';
 import { Send } from 'lucide-react';
 
 export default function Newsletter() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      const subscribers = LocalDB.get('subscribers', []);
-      if (!subscribers.includes(email)) {
-        subscribers.push(email);
-        LocalDB.save('subscribers', subscribers);
+      try {
+        setError('');
+        await newsletterApi.subscribe(email);
+        setSubscribed(true);
+        setEmail('');
+        setTimeout(() => setSubscribed(false), 5000);
+      } catch (err: any) {
+        setError(err.message || "Une erreur est survenue");
+        setTimeout(() => setError(''), 5000);
       }
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 3000);
     }
   };
 
@@ -41,6 +44,9 @@ export default function Newsletter() {
             {subscribed ? 'Abonné !' : <>S'inscrire <Send size={18} /></>}
           </button>
         </form>
+        {error && (
+          <p className="text-red-300 mt-4 text-sm font-bold animate-pulse">{error}</p>
+        )}
       </div>
     </section>
   );

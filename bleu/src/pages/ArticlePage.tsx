@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Calendar, Tag, User, ArrowLeft, Facebook, Twitter, Linkedin, Heart, MessageSquare, Send } from 'lucide-react';
 import { LocalDB } from '../utils/localDb';
-import { articleApi } from '../utils/api';
+import { articleApi, getMediaUrl } from '../utils/api';
 
 export const ArticlePage = () => {
   const { id } = useParams();
@@ -141,7 +141,7 @@ export const ArticlePage = () => {
           className="aspect-video w-full overflow-hidden rounded-[12px] shadow-custom-1"
         >
           <img 
-            src={article.image} 
+            src={getMediaUrl(article.image)} 
             alt={article.title} 
             className="w-full h-full object-cover"
           />

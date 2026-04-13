@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { slideApi } from '../utils/api';
+import { slideApi, getMediaUrl, PLACEHOLDER_IMAGE } from '../utils/api';
 
 export default function HeroCarousel() {
   const [slides, setSlides] = useState<any[]>([]);
@@ -44,10 +44,11 @@ export default function HeroCarousel() {
         {slides.map((slide, index) => (
           <div key={index} className="min-w-full h-full relative">
             <img 
-              src={slide.image} 
+              src={getMediaUrl(slide.image)} 
               alt={slide.title} 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
+              onError={(e: any) => { e.target.src = PLACEHOLDER_IMAGE; }}
             />
             {/* Gradient Overlay for text readability */}
             <div className="absolute inset-0 bg-black/40"></div>
