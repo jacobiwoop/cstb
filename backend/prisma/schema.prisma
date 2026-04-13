@@ -76,6 +76,6 @@ model Donation {
   donorName   String
   donorEmail  String
   status      String   @default("SUCCESS") // "PENDING", "SUCCESS", "FAILED"
-  reference   String?  // ID de transaction FedaPay
+  reference   String?  @unique // ID de transaction FedaPay
   createdAt   DateTime @default(now())
 }
