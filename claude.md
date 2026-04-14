@@ -1,3 +1,63 @@
+Laisse-moi d'abord lire le code.J'ai tout ce qu'il faut. Le code est clair — voici l'analyse complète et ce qu'il faut faire.
+
+---
+
+## Diagnostic du code
+
+Ton webhook est **déjà bien écrit** dans `server.js`. Le problème vient d'**un bug critique** : la route webhook est déclarée **après** `app.use(cors())` mais **avant** `app.use(express.json())`. C'est correct pour le `express.raw()`, mais il y a **un problème de timing** avec la lecture du `webhookSecret` depuis la DB.
+
+Voici les **2 problèmes réels** :
+
+### Problème 1 — `express.raw()` vs Express 5
+
+Tu utilises **Express 5** (`^5.2.1` dans `package.json`). Dans Express 5, `express.raw()` fonctionne différemment — il faut s'assurer qu'il est bien appliqué **avant** tout autre middleware qui lirait le body.
+
+### Problème 2 — Le webhook secret doit être renseigné dans les Settings
+
+Le code lit le `fedaWebhookSecret` depuis `prisma.setting` (table `Setting`). Si ce champ est vide en base → `res.status(400).send("Webhook secret missing")` → FedaPay reçoit un 400 → retry → désactivation.
+
+---
+
+## Ce qu'il faut faire
+
+### Étape 1 — Récupérer le secret webhook FedaPay
+
+Dans le **dashboard FedaPay Sandbox** :
+
+1. Va dans **Webhooks** → clique sur ton webhook créé
+2. Tu verras un champ **"Signing Secret"** ou **"Click to reveal"**
+3. Copie cette valeur — elle ressemble à `wh_sandbox_xxxxxxxxxx`
+
+### Étape 2 — Le renseigner dans les Settings de ton app
+
+Va dans ton **Admin Panel CSTB** → **Paramètres → Email & API** → champ **`fedaWebhookSecret`** → colle la valeur → **Sauvegarder**.
+
+C'est tout — ton code le lira automatiquement depuis la DB à chaque appel webhook.
+
+### Étape 3 — Corriger un bug dans server.js
+
+Il y a un petit bug dans la gestion de l'objet `transaction` dans le webhook. FedaPay envoie l'objet dans `event.data.object`, pas directement dans `event.data`. Voici la correction :Voilà le `server.js` corrigé. Résumé de ce qu'il faut faire :
+
+---
+
+### ✅ Checklist pour que ça marche
+
+**1. Récupérer le Webhook Secret FedaPay**
+Dashboard Sandbox → Webhooks → ton webhook → **"Click to reveal"** → copier `wh_sandbox_...`
+
+**2. Le coller dans ton Admin CSTB**
+Admin → Paramètres → onglet **"Email & API"** → champ **`fedaWebhookSecret`** → Sauvegarder
+
+**3. Remplacer `backend/server.js`** par le fichier corrigé ci-dessus — les changements :
+
+- Lecture robuste de `event.data.object` (structure réelle de FedaPay)
+- `donorName` et `donorEmail` avec fallbacks si le customer est null
+- Log du nom de l'événement reçu pour faciliter le debug
+
+**4. Vérifier dans les Logs FedaPay**
+Dashboard → Webhooks → ton webhook → **Logs** — tu dois voir des `200 OK`. Si tu vois encore des erreurs, copie-moi le message exact.
+
+```js
 const express = require("express");
 const cors = require("cors");
 const { PrismaClient } = require("@prisma/client");
@@ -642,3 +702,4 @@ app.listen(PORT, () => {
   console.log(`✅ Serveur Backend API démarré sur le port ${PORT}`);
   console.log(`===========================================`);
 });
+```
